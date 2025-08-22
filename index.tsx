@@ -393,3 +393,6 @@ const IdentificationIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000
 
 // Export the main App component
 export default App;
+
+// Export the main App component
+export default App;
