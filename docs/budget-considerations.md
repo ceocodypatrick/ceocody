@@ -27,19 +27,19 @@
 | AWS S3 + CloudFront | $300 | $3,600 | File storage & CDN |
 | Load Balancer | $25 | $300 | Traffic distribution |
 | Monitoring (New Relic) | $200 | $2,400 | APM and monitoring |
-| Auth0 | $240 | $2,880 | Authentication service |
+| Plaid API | $240 | $2,880 | Bank data aggregation |
 | Stripe | $0 | $0 | Payment processing (2.9% + 30¢ per transaction) |
 | Push Notifications | $50 | $600 | Firebase messaging |
 | Domain & SSL | $100 | $1,200 | Security certificates |
 | Development Tools | $300 | $3,600 | CI/CD, testing tools |
-| Music API Costs | $2,000 | $24,000 | Spotify, Apple Music APIs |
+| Third-party APIs | $2,000 | $24,000 | Financial data services |
 
 ### Third-Party Services & Licenses
 **Total: $36,000**
 
 | Service | Cost | Purpose |
 |---------|------|---------|
-| Music Data APIs | $24,000/year | Spotify, Apple Music, Last.fm |
+| Financial Data APIs | $24,000/year | Plaid, Yodlee, credit scores |
 | Design Tools (Figma Pro) | $1,440/year | UI/UX design |
 | Development Tools | $3,600/year | GitHub, CI/CD, testing |
 | Legal & Compliance | $5,000 | Terms of service, privacy policy |
@@ -52,7 +52,7 @@
 | Category | Cost | Description |
 |----------|------|-------------|
 | App Store Optimization | $5,000 | ASO specialist, keywords, assets |
-| Influencer Marketing | $25,000 | Music influencer partnerships |
+| Influencer Marketing | $25,000 | Finance influencer partnerships |
 | Social Media Advertising | $20,000 | Facebook, Instagram, TikTok ads |
 | PR & Media Outreach | $10,000 | Press releases, media coverage |
 | Content Creation | $8,000 | Video content, graphics |
@@ -102,26 +102,26 @@
 ## Revenue Projections & ROI
 
 ### Revenue Streams
-1. **Premium Subscriptions:** $4.99/month
-2. **Artist Promotion:** $50-500 per campaign
-3. **Concert Ticket Affiliate:** 5% commission
-4. **Merchandise Integration:** 10% commission
+1. **Premium Subscriptions:** $9.99/month
+2. **Financial Product Referrals:** $25-100 per conversion
+3. **Premium Features:** Advanced analytics, family sharing
+4. **Educational Content:** Financial courses and webinars
 
 ### Year 1 Revenue Projection
 | Month | Users | Premium % | Monthly Revenue | Cumulative |
 |-------|-------|-----------|-----------------|------------|
-| 1-3 | 5,000 | 2% | $500 | $1,500 |
-| 4-6 | 15,000 | 3% | $2,250 | $8,250 |
-| 7-9 | 35,000 | 5% | $8,750 | $34,500 |
-| 10-12 | 60,000 | 7% | $21,000 | $97,500 |
+| 1-3 | 5,000 | 2% | $1,000 | $3,000 |
+| 4-6 | 15,000 | 3% | $4,500 | $16,500 |
+| 7-9 | 35,000 | 5% | $17,500 | $69,000 |
+| 10-12 | 60,000 | 7% | $42,000 | $195,000 |
 
-**Year 1 Total Revenue:** $97,500
+**Year 1 Total Revenue:** $195,000
 **Break-even Point:** Month 18 (projected)
 
 ### 3-Year Financial Projection
-- **Year 1:** $97,500 revenue, -$581,500 net
-- **Year 2:** $480,000 revenue, -$101,500 net
-- **Year 3:** $1,200,000 revenue, $618,500 net
+- **Year 1:** $195,000 revenue, -$484,000 net
+- **Year 2:** $960,000 revenue, $476,000 net
+- **Year 3:** $2,400,000 revenue, $1,916,000 net
 
 ## Funding Requirements
 
