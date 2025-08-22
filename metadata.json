@@ -1,6 +1,6 @@
 {
-  "name": "AI Audience Insights & Hyper-Personalization",
-  "description": "An AI-powered toolkit for artists to analyze audience data, generate marketing campaigns, create contracts, transcribe lyrics, and manage their music business.",
+  "name": "Copy of ORGANIC DONT PANIC DRAFT 5",
+  "description": "Discover how to take your first steps with the Gemini JS SDK in an interactive way. No need to create an API key or set up your environment.",
   "requestFramePermissions": [
     "microphone"
   ],
