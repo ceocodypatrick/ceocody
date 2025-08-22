@@ -17,6 +17,7 @@ class EfficientSorter {
     constructor() {
         this.MIN_MERGE = 32;
         this.GALLOP_THRESHOLD = 7;
+        this.MAX_MERGE_PENDING = 85;
     }
 
     /**
