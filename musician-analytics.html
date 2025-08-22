@@ -850,7 +850,8 @@
             .metric-card,
             .chart-card,
             .platforms-section,
-            .insights-section {
+            .insights-section,
+            .viberate-section {
                 background: var(--gray-800);
                 border-color: var(--gray-700);
             }
@@ -859,14 +860,22 @@
             .metric-value,
             .chart-title,
             .platform-name,
-            .insight-title {
+            .insight-title,
+            .section-title,
+            .ranking-info h4,
+            .playlist-info h4,
+            .comparison-name,
+            .country-name {
                 color: var(--gray-100);
             }
 
             .artist-details p,
             .metric-subtitle,
             .platform-stats,
-            .insight-text {
+            .insight-text,
+            .section-subtitle,
+            .ranking-genre,
+            .playlist-curator {
                 color: var(--gray-400);
             }
 
@@ -875,16 +884,21 @@
             }
 
             .chart-container,
-            .chart-placeholder {
+            .chart-placeholder,
+            .geo-map {
                 background: var(--gray-700);
             }
 
-            .platform-card {
+            .platform-card,
+            .ranking-card,
+            .playlist-card {
                 background: var(--gray-700);
                 border-color: var(--gray-600);
             }
 
-            .platform-card:hover {
+            .platform-card:hover,
+            .ranking-card:hover,
+            .playlist-card:hover {
                 background: var(--gray-600);
             }
 
@@ -893,7 +907,17 @@
                 border-left-color: var(--primary-400);
             }
 
-            .track-item:hover {
+            .comparison-section {
+                background: linear-gradient(135deg, var(--primary-900), var(--indigo-900));
+                border-color: var(--primary-700);
+            }
+
+            .comparison-artist {
+                background: var(--gray-700);
+            }
+
+            .track-item:hover,
+            .country-item:hover {
                 background: var(--gray-700);
             }
 
