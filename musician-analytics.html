@@ -944,70 +944,92 @@
         <section class="metrics-grid">
             <div class="metric-card">
                 <div class="metric-header">
-                    <div class="metric-icon streams">🎵</div>
+                    <div class="metric-icon streams">
+                        <i class="fas fa-play"></i>
+                    </div>
                     <div class="metric-change positive">
-                        <span>↗</span>
+                        <i class="fas fa-arrow-up"></i>
                         <span id="streams-change">+12.5%</span>
                     </div>
                 </div>
-                <div class="metric-title">Total Streams</div>
-                <div class="metric-value" id="total-streams">2.4M</div>
-                <div class="metric-subtitle">Across all platforms</div>
+                <div class="metric-content">
+                    <div class="metric-title">Total Streams</div>
+                    <div class="metric-value" id="total-streams">2.4M</div>
+                    <div class="metric-subtitle">Across all platforms</div>
+                </div>
             </div>
 
             <div class="metric-card">
                 <div class="metric-header">
-                    <div class="metric-icon followers">👥</div>
+                    <div class="metric-icon followers">
+                        <i class="fas fa-users"></i>
+                    </div>
                     <div class="metric-change positive">
-                        <span>↗</span>
+                        <i class="fas fa-arrow-up"></i>
                         <span id="followers-change">+8.3%</span>
                     </div>
                 </div>
-                <div class="metric-title">Total Followers</div>
-                <div class="metric-value" id="total-followers">45.2K</div>
-                <div class="metric-subtitle">Growing audience</div>
+                <div class="metric-content">
+                    <div class="metric-title">Total Followers</div>
+                    <div class="metric-value" id="total-followers">45.2K</div>
+                    <div class="metric-subtitle">Growing audience</div>
+                </div>
             </div>
 
             <div class="metric-card">
                 <div class="metric-header">
-                    <div class="metric-icon revenue">💰</div>
+                    <div class="metric-icon revenue">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
                     <div class="metric-change positive">
-                        <span>↗</span>
+                        <i class="fas fa-arrow-up"></i>
                         <span id="revenue-change">+15.7%</span>
                     </div>
                 </div>
-                <div class="metric-title">Monthly Revenue</div>
-                <div class="metric-value" id="monthly-revenue">$3,247</div>
-                <div class="metric-subtitle">From streaming & sales</div>
+                <div class="metric-content">
+                    <div class="metric-title">Monthly Revenue</div>
+                    <div class="metric-value" id="monthly-revenue">$3,247</div>
+                    <div class="metric-subtitle">From streaming & sales</div>
+                </div>
             </div>
 
             <div class="metric-card">
                 <div class="metric-header">
-                    <div class="metric-icon engagement">❤️</div>
+                    <div class="metric-icon engagement">
+                        <i class="fas fa-heart"></i>
+                    </div>
                     <div class="metric-change positive">
-                        <span>↗</span>
+                        <i class="fas fa-arrow-up"></i>
                         <span id="engagement-change">+22.1%</span>
                     </div>
                 </div>
-                <div class="metric-title">Engagement Rate</div>
-                <div class="metric-value" id="engagement-rate">7.8%</div>
-                <div class="metric-subtitle">Likes, shares, comments</div>
+                <div class="metric-content">
+                    <div class="metric-title">Engagement Rate</div>
+                    <div class="metric-value" id="engagement-rate">7.8%</div>
+                    <div class="metric-subtitle">Likes, shares, comments</div>
+                </div>
             </div>
         </section>
 
         <!-- Charts Section -->
         <section class="charts-section">
             <div class="chart-card">
-                <h3 class="chart-title">Streaming Trends</h3>
+                <h3 class="chart-title">
+                    Streaming Trends
+                    <button class="chart-options" aria-label="Chart options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                </h3>
                 <div class="chart-container">
-                    <div class="chart-placeholder streaming-chart">
-                        Interactive streaming chart would appear here
-                    </div>
+                    <canvas id="streaming-chart" width="400" height="200"></canvas>
                 </div>
             </div>
 
             <div class="chart-card">
-                <h3 class="chart-title">Top Tracks (30 Days)</h3>
+                <h3 class="chart-title">
+                    Top Tracks (30 Days)
+                    <span class="chart-subtitle">Most played songs</span>
+                </h3>
                 <ul class="top-tracks" id="top-tracks">
                     <li class="track-item">
                         <div class="track-rank">1</div>
