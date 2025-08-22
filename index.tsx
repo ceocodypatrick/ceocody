@@ -2215,7 +2215,7 @@ const SummitScore: FC<{ onGenerate: () => void; data?: SummitScoreData; loading?
                 <p className="text-gray-300">{data.explanation}</p>
                 <div className="mt-2 text-left">
                     <h4 className="font-bold text-center">Areas for Improvement:</h4>
-                    <ul className="list-disc list-inside inline-block text-center">
+         </svg>
                         {data.areas_for_improvement.map(area => <li key={area}>{area}</li>)}
                     </ul>
                 </div>
@@ -2225,7 +2225,7 @@ const SummitScore: FC<{ onGenerate: () => void; data?: SummitScoreData; loading?
     </div>
 );
 
-const ChatAssistant: FC<{systemInstruction: string}> = ({systemInstruction}) => {
+const ChatAssistant = ({systemInstruction}: {systemInstruction: string}) => {
     const { state, dispatch, geminiService } = useAppContext();
     const { chatHistory, loading, errors } = state;
     const [input, setInput] = useState('');
