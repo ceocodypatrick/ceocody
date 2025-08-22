@@ -1186,7 +1186,17 @@
                 revenue: '$847',
                 revenueChange: '+8.3%',
                 engagement: '8.2%',
-                engagementChange: '+12.5%'
+                engagementChange: '+12.5%',
+                chartData: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Streams',
+                        data: [18000, 22000, 19000, 25000, 32000, 28000, 24000],
+                        borderColor: '#3b82f6',
+                        backgroundColor: '#3b82f650',
+                        tension: 0.4
+                    }]
+                }
             },
             '30d': {
                 streams: '2.4M',
@@ -1196,7 +1206,17 @@
                 revenue: '$3,247',
                 revenueChange: '+15.7%',
                 engagement: '7.8%',
-                engagementChange: '+22.1%'
+                engagementChange: '+22.1%',
+                chartData: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Streams',
+                        data: [580000, 620000, 590000, 650000],
+                        borderColor: '#3b82f6',
+                        backgroundColor: '#3b82f650',
+                        tension: 0.4
+                    }]
+                }
             },
             '90d': {
                 streams: '6.8M',
@@ -1206,7 +1226,17 @@
                 revenue: '$9,156',
                 revenueChange: '+31.2%',
                 engagement: '7.2%',
-                engagementChange: '+15.8%'
+                engagementChange: '+15.8%',
+                chartData: {
+                    labels: ['Month 1', 'Month 2', 'Month 3'],
+                    datasets: [{
+                        label: 'Streams',
+                        data: [2100000, 2300000, 2400000],
+                        borderColor: '#3b82f6',
+                        backgroundColor: '#3b82f650',
+                        tension: 0.4
+                    }]
+                }
             },
             '1y': {
                 streams: '28.5M',
@@ -1216,209 +1246,483 @@
                 revenue: '$42,890',
                 revenueChange: '+198.7%',
                 engagement: '6.9%',
-                engagementChange: '+89.2%'
+                engagementChange: '+89.2%',
+                chartData: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [{
+                        label: 'Streams',
+                        data: [5200000, 6800000, 7800000, 8700000],
+                        borderColor: '#3b82f6',
+                        backgroundColor: '#3b82f650',
+                        tension: 0.4
+                    }]
+                }
             }
         };
 
-        // Top tracks data for different periods
+        // Enhanced Top Tracks Data
         const topTracksData = {
             '7d': [
-                { name: 'Midnight Dreams', plays: '23K plays' },
-                { name: 'Electric Pulse', plays: '18K plays' },
-                { name: 'Neon Lights', plays: '15K plays' },
-                { name: 'Digital Love', plays: '12K plays' },
-                { name: 'Synthwave', plays: '9K plays' }
+                { name: 'Midnight Dreams', plays: '23K plays', trend: '+12%', trendDirection: 'up' },
+                { name: 'Electric Pulse', plays: '18K plays', trend: '+8%', trendDirection: 'up' },
+                { name: 'Neon Lights', plays: '15K plays', trend: '+15%', trendDirection: 'up' },
+                { name: 'Digital Love', plays: '12K plays', trend: '-2%', trendDirection: 'down' },
+                { name: 'Synthwave', plays: '9K plays', trend: '+5%', trendDirection: 'up' }
             ],
             '30d': [
-                { name: 'Midnight Dreams', plays: '847K plays' },
-                { name: 'Electric Pulse', plays: '623K plays' },
-                { name: 'Neon Lights', plays: '445K plays' },
-                { name: 'Digital Love', plays: '387K plays' },
-                { name: 'Synthwave', plays: '298K plays' }
+                { name: 'Midnight Dreams', plays: '847K plays', trend: '+12%', trendDirection: 'up' },
+                { name: 'Electric Pulse', plays: '623K plays', trend: '+8%', trendDirection: 'up' },
+                { name: 'Neon Lights', plays: '445K plays', trend: '+15%', trendDirection: 'up' },
+                { name: 'Digital Love', plays: '387K plays', trend: '-2%', trendDirection: 'down' },
+                { name: 'Synthwave', plays: '298K plays', trend: '+5%', trendDirection: 'up' }
             ],
             '90d': [
-                { name: 'Midnight Dreams', plays: '2.1M plays' },
-                { name: 'Electric Pulse', plays: '1.8M plays' },
-                { name: 'Neon Lights', plays: '1.2M plays' },
-                { name: 'Digital Love', plays: '987K plays' },
-                { name: 'Synthwave', plays: '756K plays' }
+                { name: 'Midnight Dreams', plays: '2.1M plays', trend: '+18%', trendDirection: 'up' },
+                { name: 'Electric Pulse', plays: '1.8M plays', trend: '+14%', trendDirection: 'up' },
+                { name: 'Neon Lights', plays: '1.2M plays', trend: '+22%', trendDirection: 'up' },
+                { name: 'Digital Love', plays: '987K plays', trend: '+3%', trendDirection: 'up' },
+                { name: 'Synthwave', plays: '756K plays', trend: '+9%', trendDirection: 'up' }
             ],
             '1y': [
-                { name: 'Midnight Dreams', plays: '8.9M plays' },
-                { name: 'Electric Pulse', plays: '7.2M plays' },
-                { name: 'Neon Lights', plays: '5.8M plays' },
-                { name: 'Digital Love', plays: '4.1M plays' },
-                { name: 'Synthwave', plays: '2.5M plays' }
+                { name: 'Midnight Dreams', plays: '8.9M plays', trend: '+156%', trendDirection: 'up' },
+                { name: 'Electric Pulse', plays: '7.2M plays', trend: '+134%', trendDirection: 'up' },
+                { name: 'Neon Lights', plays: '5.8M plays', trend: '+187%', trendDirection: 'up' },
+                { name: 'Digital Love', plays: '4.1M plays', trend: '+98%', trendDirection: 'up' },
+                { name: 'Synthwave', plays: '2.5M plays', trend: '+67%', trendDirection: 'up' }
             ]
         };
 
+        // Global variables
+        let currentChart = null;
+        let isDarkMode = false;
+        let isLoading = false;
+
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            // Add fade-in animation to all cards
-            const cards = document.querySelectorAll('.metric-card, .chart-card, .platforms-section, .insights-section');
-            cards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.classList.add('fade-in');
-                }, index * 100);
-            });
+            initializeAnimations();
+            initializeChart();
+            initializeEventListeners();
+            initializeThemeToggle();
+            initializeRealTimeUpdates();
+            
+            // Initial load with default period
+            updateDashboard('30d');
+        });
 
-            // Time period selector functionality
+        // Initialize animations
+        function initializeAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            const animatedElements = document.querySelectorAll('.metric-card, .chart-card, .platforms-section, .insights-section, .insight-card, .platform-card');
+            animatedElements.forEach(el => observer.observe(el));
+        }
+
+        // Initialize Chart.js
+        function initializeChart() {
+            const ctx = document.getElementById('streaming-chart');
+            if (!ctx) return;
+
+            const config = {
+                type: 'line',
+                data: analyticsData['30d'].chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Streams: ${context.parsed.y.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#6b7280'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#e5e7eb'
+                            },
+                            ticks: {
+                                color: '#6b7280',
+                                callback: function(value) {
+                                    return value >= 1000000 ? (value / 1000000).toFixed(1) + 'M' : 
+                                           value >= 1000 ? (value / 1000).toFixed(0) + 'K' : value;
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 4,
+                            hoverRadius: 6,
+                            backgroundColor: '#3b82f6',
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        line: {
+                            borderWidth: 3,
+                            fill: true
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            };
+
+            currentChart = new Chart(ctx, config);
+        }
+
+        // Initialize event listeners
+        function initializeEventListeners() {
+            // Time period selector
             const timeButtons = document.querySelectorAll('.time-btn');
             timeButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    // Remove active class from all buttons
-                    timeButtons.forEach(btn => btn.classList.remove('active'));
+                    if (isLoading) return;
                     
-                    // Add active class to clicked button
+                    timeButtons.forEach(btn => btn.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Get selected period
                     const period = this.dataset.period;
-                    
-                    // Update metrics with loading animation
-                    updateMetrics(period);
-                    updateTopTracks(period);
+                    updateDashboard(period);
                 });
             });
 
-            // Simulate real-time updates
-            setInterval(() => {
-                simulateRealTimeUpdate();
-            }, 30000); // Update every 30 seconds
-
-            // Add hover effects to metric cards
-            const metricCards = document.querySelectorAll('.metric-card');
-            metricCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-8px) scale(1.02)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0) scale(1)';
+            // Platform cards interaction
+            const platformCards = document.querySelectorAll('.platform-card');
+            platformCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.classList.add('pulse');
+                    setTimeout(() => this.classList.remove('pulse'), 1000);
                 });
             });
-        });
 
-        function updateMetrics(period) {
-            const data = analyticsData[period];
+            // Track items interaction
+            const trackItems = document.querySelectorAll('.track-item');
+            trackItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const trackName = this.querySelector('.track-name').textContent;
+                    showNotification(`Playing preview of "${trackName}"`);
+                });
+            });
+        }
+
+        // Initialize theme toggle
+        function initializeThemeToggle() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const icon = themeToggle.querySelector('i');
             
-            // Show loading animation
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                toggleDarkMode(true);
+            }
+
+            themeToggle.addEventListener('click', function() {
+                toggleDarkMode();
+            });
+
+            function toggleDarkMode(force = null) {
+                isDarkMode = force !== null ? force : !isDarkMode;
+                
+                if (isDarkMode) {
+                    document.body.classList.add('dark');
+                    icon.className = 'fas fa-sun';
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.body.classList.remove('dark');
+                    icon.className = 'fas fa-moon';
+                    localStorage.setItem('theme', 'light');
+                }
+
+                // Update chart colors if chart exists
+                if (currentChart) {
+                    updateChartTheme();
+                }
+            }
+        }
+
+        // Update dashboard with new period data
+        function updateDashboard(period) {
+            if (isLoading) return;
+            
+            isLoading = true;
             showLoadingAnimation();
             
             setTimeout(() => {
-                // Update metric values
-                document.getElementById('total-streams').textContent = data.streams;
-                document.getElementById('streams-change').textContent = data.streamsChange;
-                
-                document.getElementById('total-followers').textContent = data.followers;
-                document.getElementById('followers-change').textContent = data.followersChange;
-                
-                document.getElementById('monthly-revenue').textContent = data.revenue;
-                document.getElementById('revenue-change').textContent = data.revenueChange;
-                
-                document.getElementById('engagement-rate').textContent = data.engagement;
-                document.getElementById('engagement-change').textContent = data.engagementChange;
-                
-                // Add update animation
-                const metricValues = document.querySelectorAll('.metric-value');
-                metricValues.forEach(value => {
-                    value.style.transform = 'scale(1.1)';
-                    setTimeout(() => {
-                        value.style.transform = 'scale(1)';
-                    }, 200);
-                });
-                
+                updateMetrics(period);
+                updateChart(period);
+                updateTopTracks(period);
                 hideLoadingAnimation();
-            }, 800);
+                isLoading = false;
+            }, 600);
         }
 
+        // Update metrics
+        function updateMetrics(period) {
+            const data = analyticsData[period];
+            
+            // Update metric values with animation
+            animateValue('total-streams', data.streams);
+            animateValue('total-followers', data.followers);
+            animateValue('monthly-revenue', data.revenue);
+            animateValue('engagement-rate', data.engagement);
+            
+            // Update change indicators
+            document.getElementById('streams-change').textContent = data.streamsChange;
+            document.getElementById('followers-change').textContent = data.followersChange;
+            document.getElementById('revenue-change').textContent = data.revenueChange;
+            document.getElementById('engagement-change').textContent = data.engagementChange;
+        }
+
+        // Update chart
+        function updateChart(period) {
+            if (!currentChart) return;
+            
+            const data = analyticsData[period];
+            currentChart.data = data.chartData;
+            currentChart.update('active');
+        }
+
+        // Update top tracks
         function updateTopTracks(period) {
             const tracks = topTracksData[period];
             const tracksList = document.getElementById('top-tracks');
             
-            // Clear current tracks
-            tracksList.innerHTML = '';
+            // Clear current tracks with fade out
+            tracksList.style.opacity = '0';
             
-            // Add new tracks with animation
-            tracks.forEach((track, index) => {
-                setTimeout(() => {
+            setTimeout(() => {
+                tracksList.innerHTML = '';
+                
+                // Add new tracks with animation
+                tracks.forEach((track, index) => {
                     const trackItem = document.createElement('li');
-                    trackItem.className = 'track-item fade-in';
+                    trackItem.className = 'track-item';
+                    trackItem.style.opacity = '0';
+                    trackItem.style.transform = 'translateX(-20px)';
                     trackItem.innerHTML = `
                         <div class="track-rank">${index + 1}</div>
                         <div class="track-info">
                             <div class="track-name">${track.name}</div>
                             <div class="track-plays">${track.plays}</div>
                         </div>
+                        <div class="track-trend ${track.trendDirection === 'up' ? 'positive' : 'negative'}">
+                            <i class="fas fa-arrow-${track.trendDirection === 'up' ? 'up' : 'down'}"></i>
+                            ${track.trend}
+                        </div>
                     `;
+                    
+                    // Add click event
+                    trackItem.addEventListener('click', function() {
+                        showNotification(`Playing preview of "${track.name}"`);
+                    });
+                    
                     tracksList.appendChild(trackItem);
-                }, index * 100);
-            });
+                    
+                    // Animate in
+                    setTimeout(() => {
+                        trackItem.style.transition = 'all 0.3s ease';
+                        trackItem.style.opacity = '1';
+                        trackItem.style.transform = 'translateX(0)';
+                    }, index * 50);
+                });
+                
+                tracksList.style.opacity = '1';
+            }, 200);
         }
 
+        // Animate value changes
+        function animateValue(elementId, endValue) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            element.classList.add('slide-up');
+            setTimeout(() => {
+                element.textContent = endValue;
+                element.classList.remove('slide-up');
+            }, 200);
+        }
+
+        // Update chart theme
+        function updateChartTheme() {
+            if (!currentChart) return;
+            
+            const gridColor = isDarkMode ? '#374151' : '#e5e7eb';
+            const textColor = isDarkMode ? '#9ca3af' : '#6b7280';
+            
+            currentChart.options.scales.x.ticks.color = textColor;
+            currentChart.options.scales.y.ticks.color = textColor;
+            currentChart.options.scales.y.grid.color = gridColor;
+            
+            currentChart.update();
+        }
+
+        // Show loading animation
         function showLoadingAnimation() {
             const metricValues = document.querySelectorAll('.metric-value');
             metricValues.forEach(value => {
-                const originalText = value.textContent;
-                value.innerHTML = '<div class="loading-animation"></div>';
-                value.dataset.originalText = originalText;
+                value.style.opacity = '0.5';
+                value.style.transform = 'scale(0.95)';
             });
         }
 
+        // Hide loading animation
         function hideLoadingAnimation() {
             const metricValues = document.querySelectorAll('.metric-value');
             metricValues.forEach(value => {
-                if (value.dataset.originalText) {
-                    value.textContent = value.dataset.originalText;
-                    delete value.dataset.originalText;
-                }
+                value.style.opacity = '1';
+                value.style.transform = 'scale(1)';
             });
         }
 
+        // Initialize real-time updates
+        function initializeRealTimeUpdates() {
+            // Simulate real-time data updates every 30 seconds
+            setInterval(() => {
+                if (!isLoading) {
+                    simulateRealTimeUpdate();
+                }
+            }, 30000);
+        }
+
+        // Simulate real-time updates
         function simulateRealTimeUpdate() {
-            // Simulate small changes in metrics
-            const currentStreams = document.getElementById('total-streams').textContent;
-            const currentFollowers = document.getElementById('total-followers').textContent;
-            
-            // Add subtle visual feedback for real-time updates
             const indicators = document.querySelectorAll('.metric-change');
             indicators.forEach(indicator => {
-                indicator.style.animation = 'pulse 0.5s ease-in-out';
+                indicator.classList.add('pulse');
                 setTimeout(() => {
-                    indicator.style.animation = '';
-                }, 500);
+                    indicator.classList.remove('pulse');
+                }, 1000);
             });
+
+            // Show subtle notification
+            showNotification('Data updated', 2000);
+        }
+
+        // Show notification
+        function showNotification(message, duration = 3000) {
+            // Remove existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--primary-600);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: var(--shadow-lg);
+                z-index: 1000;
+                font-weight: 500;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Auto remove
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, duration);
         }
 
         // Keyboard navigation support
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                // Ensure proper tab navigation
-                const focusableElements = document.querySelectorAll('button, .track-item, .platform-card');
-                // Add focus styles for accessibility
-                focusableElements.forEach(element => {
-                    element.addEventListener('focus', function() {
-                        this.style.outline = '2px solid #667eea';
-                        this.style.outlineOffset = '2px';
-                    });
-                    element.addEventListener('blur', function() {
-                        this.style.outline = '';
-                        this.style.outlineOffset = '';
-                    });
-                });
+            if (e.key === 'Escape') {
+                // Close any open modals or notifications
+                const notification = document.querySelector('.notification');
+                if (notification) {
+                    notification.remove();
+                }
+            }
+
+            // Number key shortcuts for time periods
+            const keyMap = {
+                '1': '7d',
+                '2': '30d',
+                '3': '90d',
+                '4': '1y'
+            };
+
+            if (keyMap[e.key] && !isLoading) {
+                const targetButton = document.querySelector(`[data-period="${keyMap[e.key]}"]`);
+                if (targetButton) {
+                    targetButton.click();
+                }
             }
         });
 
-        // Add pulse animation for real-time updates
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.05); }
-                100% { transform: scale(1); }
-            }
-        `;
-        document.head.appendChild(style);
+        // Performance monitoring
+        if ('performance' in window) {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    const perfData = performance.getEntriesByType('navigation')[0];
+                    console.log(`Dashboard loaded in ${Math.round(perfData.loadEventEnd - perfData.fetchStart)}ms`);
+                }, 0);
+            });
+        }
+
+        // Error handling
+        window.addEventListener('error', function(e) {
+            console.error('Dashboard error:', e.error);
+            showNotification('Something went wrong. Please refresh the page.', 5000);
+        });
+
+        // Service Worker for offline functionality (optional)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Uncomment to enable service worker
+                // navigator.serviceWorker.register('/sw.js')
+                //     .then(registration => console.log('SW registered'))
+                //     .catch(error => console.log('SW registration failed'));
+            });
+        }
     </script>
 </body>
+</html>
 </html>
