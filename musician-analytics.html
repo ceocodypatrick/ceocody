@@ -754,6 +754,71 @@
                 flex-direction: column;
                 gap: var(--space-4);
             }
+
+            .ranking-grid,
+            .playlist-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .geo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-4);
+            }
+
+            .comparison-vs {
+                order: 2;
+                margin: var(--space-4) 0;
+            }
+        }
+
+        /* Additional responsive improvements for Viberate sections */
+        @media (max-width: 768px) {
+            .ranking-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-3);
+            }
+
+            .geo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .geo-map {
+                height: 200px;
+            }
+
+            .playlist-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-3);
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-4);
+                text-align: center;
+            }
+
+            .comparison-vs {
+                order: 2;
+                margin: var(--space-4) 0;
+            }
+
+            .section-title {
+                font-size: 1.25rem;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .ranking-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .playlist-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         /* Utility Classes */
@@ -878,10 +943,328 @@
             }
         }
 
+        /* Viberate-inspired Elements */
+        .viberate-section {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: var(--space-6);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .section-subtitle {
+            color: var(--gray-500);
+            font-size: 0.875rem;
+            margin-top: var(--space-1);
+        }
+
+        /* Artist Ranking */
+        .ranking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-4);
+        }
+
+        .ranking-card {
+            background: var(--gray-50);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            border: 1px solid var(--gray-200);
+            transition: all 0.2s ease;
+        }
+
+        .ranking-card:hover {
+            background: white;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .ranking-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-3);
+        }
+
+        .ranking-position {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-500), var(--indigo-500));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .ranking-info h4 {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .ranking-genre {
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        .ranking-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ranking-score {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-600);
+        }
+
+        .ranking-trend {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .ranking-trend.up { color: var(--green-600); }
+        .ranking-trend.down { color: var(--red-600); }
+
+        /* Geography Analytics */
+        .geo-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--space-6);
+        }
+
+        .geo-map {
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-500);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .geo-countries {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .country-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-3);
+            border-radius: var(--radius-md);
+            transition: background 0.2s ease;
+        }
+
+        .country-item:hover {
+            background: var(--gray-50);
+        }
+
+        .country-flag {
+            width: 24px;
+            height: 16px;
+            border-radius: var(--radius-sm);
+            background: var(--gray-300);
+            margin-right: var(--space-2);
+        }
+
+        .country-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .country-name {
+            font-weight: 500;
+            color: var(--gray-900);
+        }
+
+        .country-percentage {
+            font-weight: 600;
+            color: var(--primary-600);
+        }
+
+        /* Playlist Analytics */
+        .playlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-4);
+        }
+
+        .playlist-card {
+            background: var(--gray-50);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            border: 1px solid var(--gray-200);
+            transition: all 0.2s ease;
+        }
+
+        .playlist-card:hover {
+            background: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .playlist-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+
+        .playlist-cover {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--purple-500), var(--pink-500));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .playlist-info h4 {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .playlist-curator {
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        .playlist-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+
+        .playlist-stat {
+            text-align: center;
+        }
+
+        .playlist-stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .playlist-stat-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Comparison Tool */
+        .comparison-section {
+            background: linear-gradient(135deg, var(--primary-50), var(--indigo-50));
+            border: 1px solid var(--primary-200);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: var(--space-6);
+            align-items: center;
+        }
+
+        .comparison-artist {
+            text-align: center;
+            padding: var(--space-6);
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .comparison-vs {
+            background: var(--primary-600);
+            color: white;
+            padding: var(--space-3) var(--space-4);
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .comparison-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-500), var(--indigo-500));
+            margin: 0 auto var(--space-4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .comparison-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-2);
+        }
+
+        .comparison-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+            margin-top: var(--space-4);
+        }
+
+        .comparison-metric {
+            text-align: center;
+        }
+
+        .comparison-metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-600);
+        }
+
+        .comparison-metric-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         /* Focus States for Accessibility */
         button:focus,
         .track-item:focus,
-        .platform-card:focus {
+        .platform-card:focus,
+        .ranking-card:focus,
+        .playlist-card:focus {
             outline: 2px solid var(--primary-500);
             outline-offset: 2px;
         }
