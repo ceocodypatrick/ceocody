@@ -1,0 +1,8 @@
+{
+  "name": "AI Audience Insights & Hyper-Personalization",
+  "description": "An AI-powered toolkit for artists to analyze audience data, generate marketing campaigns, create contracts, transcribe lyrics, and manage their music business.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "prompt": ""
+}
