@@ -2108,6 +2108,9 @@
                 card.addEventListener('click', function() {
                     this.classList.add('pulse');
                     setTimeout(() => this.classList.remove('pulse'), 1000);
+                    
+                    const platformName = this.querySelector('.platform-name').textContent;
+                    showNotification(`Viewing ${platformName} detailed analytics`);
                 });
             });
 
@@ -2117,6 +2120,49 @@
                 item.addEventListener('click', function() {
                     const trackName = this.querySelector('.track-name').textContent;
                     showNotification(`Playing preview of "${trackName}"`);
+                });
+            });
+
+            // Ranking cards interaction
+            const rankingCards = document.querySelectorAll('.ranking-card');
+            rankingCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.classList.add('pulse');
+                    setTimeout(() => this.classList.remove('pulse'), 1000);
+                    showNotification('Viewing detailed ranking analytics');
+                });
+            });
+
+            // Country items interaction
+            const countryItems = document.querySelectorAll('.country-item');
+            countryItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const countryName = this.querySelector('.country-name').textContent;
+                    showNotification(`Analyzing ${countryName} market data`);
+                });
+            });
+
+            // Playlist cards interaction
+            const playlistCards = document.querySelectorAll('.playlist-card');
+            playlistCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.classList.add('pulse');
+                    setTimeout(() => this.classList.remove('pulse'), 1000);
+                    
+                    const playlistName = this.querySelector('h4').textContent;
+                    showNotification(`Opening ${playlistName} analytics`);
+                });
+            });
+
+            // Comparison artists interaction
+            const comparisonArtists = document.querySelectorAll('.comparison-artist');
+            comparisonArtists.forEach(artist => {
+                artist.addEventListener('click', function() {
+                    this.classList.add('pulse');
+                    setTimeout(() => this.classList.remove('pulse'), 1000);
+                    
+                    const artistName = this.querySelector('.comparison-name').textContent;
+                    showNotification(`Viewing ${artistName} profile`);
                 });
             });
         }
