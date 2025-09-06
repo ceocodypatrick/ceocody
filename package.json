@@ -1,21 +1,25 @@
 {
-  "name": "copy-of-organic-dont-panic-draft-5",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "harmoni-prototype",
+  "version": "0.1.0",
+  "description": "HARMONI music platform prototype",
+  "main": "index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd backend && npm run dev",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "music",
+    "platform",
+    "streaming",
+    "artists",
+    "fans"
+  ],
+  "author": "HARMONI Team",
+  "license": "ISC",
   "dependencies": {
-    "react-dom": "18.3.1",
-    "@google/genai": "^1.10.0",
-    "react": "18.3.1"
-  },
-  "devDependencies": {
-    "@types/node": "^22.14.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "concurrently": "^8.2.2"
   }
 }
