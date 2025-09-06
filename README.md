@@ -1,109 +1,147 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# HARMONI Music Platform Prototype
 
-# Efficient Sorting Algorithm & AI Studio App
+This repository contains the technical prototype for the HARMONI music platform, an integrated ecosystem for music creation, distribution, discovery, and monetization.
 
-This project contains an efficient sorting algorithm for large datasets and an AI Studio app.
+## Overview
 
-## 🚀 Efficient Sorting Algorithm
+HARMONI is a revolutionary music platform that connects artists directly with fans, providing tools for music distribution, analytics, fan engagement, and monetization. The platform aims to solve key pain points in the music industry by creating a more transparent, artist-friendly ecosystem.
 
-A high-performance hybrid sorting algorithm designed for handling large datasets efficiently. Features include:
+This prototype demonstrates the core functionality and user experience of the HARMONI platform, focusing on the key user journeys for both artists and fans.
 
-- **Adaptive Performance**: Optimizes for partially sorted data
-- **Stable Sorting**: Maintains relative order of equal elements  
-- **Memory Efficient**: Uses iterative approach to avoid stack overflow
-- **Hybrid Approach**: Combines insertion sort, merge sort, and Timsort optimizations
-- **Custom Comparators**: Supports sorting any data type
-- **Performance Analytics**: Built-in benchmarking and statistics
+## Project Structure
 
-### Quick Start
+The project is organized into two main directories:
 
-```javascript
-import EfficientSorter from './src/sorting/efficientSort.js';
+- `frontend/`: Next.js application for the user interface
+- `backend/`: Express.js API for the backend services
 
-const sorter = new EfficientSorter();
+### Frontend Structure
 
-// Basic usage
-const numbers = [64, 34, 25, 12, 22, 11, 90];
-sorter.sort(numbers);
-console.log(numbers); // [11, 12, 22, 25, 34, 64, 90]
+- `components/`: Reusable UI components
+  - `layout/`: Layout components (MainLayout, Sidebar, Navbar, etc.)
+  - `player/`: Music player components
+  - `common/`: Common UI components (buttons, cards, etc.)
+- `pages/`: Next.js pages
+- `styles/`: Global styles and Tailwind configuration
+- `utils/`: Utility functions and Redux store
 
-// With performance stats
-const result = sorter.sortWithStats(largeArray);
-console.log(`Sorted ${result.stats.arrayLength} elements in ${result.stats.duration}`);
+### Backend Structure
 
-// Custom comparator for objects
-const people = [{ name: 'Alice', age: 30 }, { name: 'Bob', age: 25 }];
-sorter.sort(people, (a, b) => a.age - b.age);
-```
+- `api/`: API routes and controllers
+  - `routes/`: Express routes
+  - `controllers/`: Route controllers
+  - `models/`: Data models
+  - `middleware/`: Express middleware
+- `uploads/`: Directory for uploaded files
+  - `tracks/`: Uploaded audio files
+  - `images/`: Uploaded images
+  - `avatars/`: User avatars
 
-### Performance Features
+## Features
 
-- **Small Arrays (< 32 elements)**: Uses optimized insertion sort
-- **Medium Arrays**: Uses hybrid merge sort with binary insertion
-- **Large Arrays**: Uses Timsort-inspired algorithm with run detection
-- **Galloping Mode**: Optimizes merging when one side consistently wins
-- **Natural Run Detection**: Leverages existing order in data
+### Artist Experience
 
-### Benchmarking
+- **Dashboard**: Overview of performance metrics, audience insights, and revenue
+- **Music Upload & Management**: Upload, organize, and manage music catalog
+- **Release Creation & Distribution**: Create and distribute releases to streaming platforms
+- **Analytics**: Comprehensive analytics for tracks, audience, and revenue
+- **Fan Engagement**: Tools to connect with fans and build a community
 
-```javascript
-import SortingBenchmark from './src/sorting/sortingBenchmark.js';
+### Fan Experience
 
-const benchmark = new SortingBenchmark();
+- **Music Discovery & Playback**: Discover and listen to music with high-quality playback
+- **Artist Following**: Follow favorite artists and receive updates
+- **Direct Support**: Support artists directly through tips, subscriptions, and purchases
+- **Personalized Recommendations**: Receive personalized music recommendations
 
-// Run comprehensive benchmarks
-benchmark.runAllTests();
+## Technology Stack
 
-// Compare with native sort
-benchmark.compareWithNativeSort(100000);
+### Frontend
 
-// Test different data patterns
-const results = benchmark.runBenchmark();
-```
+- **Framework**: React with Next.js
+- **State Management**: Redux Toolkit
+- **Styling**: Tailwind CSS
+- **Audio Processing**: Web Audio API with wavesurfer.js
+- **UI Components**: Custom components with Heroicons and Framer Motion
 
-### Files Structure
+### Backend
 
-- `src/sorting/efficientSort.js` - Main sorting algorithm implementation
-- `src/sorting/sortingBenchmark.js` - Comprehensive benchmarking suite
-- `src/sorting/examples.js` - Usage examples and demonstrations
+- **Framework**: Express.js
+- **Authentication**: JWT-based authentication
+- **File Storage**: Local storage (simulated cloud storage)
+- **Database**: MongoDB (simulated with mock data for prototype)
 
-## 🤖 AI Studio App
+## Getting Started
 
-View your app in AI Studio: https://ai.studio/apps/drive/1oQe9ln4cPFjArzxSXEsPNaq7riLAOhqW
+### Prerequisites
 
-## Run Locally
+- Node.js (v14 or higher)
+- npm or yarn
 
-**Prerequisites:**  Node.js
+### Installation
 
+1. Clone the repository
+2. Install frontend dependencies:
+   ```
+   cd frontend
+   npm install
+   ```
+3. Install backend dependencies:
+   ```
+   cd backend
+   npm install
+   ```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Running the Application
 
-## Testing the Sorting Algorithm
+1. Start the backend server:
+   ```
+   cd backend
+   npm run dev
+   ```
+2. Start the frontend development server:
+   ```
+   cd frontend
+   npm run dev
+   ```
+3. Open your browser and navigate to `http://localhost:3000`
 
-```bash
-# Run the examples
-node src/sorting/examples.js
+## Demo Accounts
 
-# Or import in your own code
-import { sorter, performanceTest } from './src/sorting/examples.js';
+For testing purposes, you can use the following demo accounts:
 
-// Test with 1 million elements
-const result = performanceTest(1000000);
-console.log(result.stats);
-```
+### Artist Account
+- Email: james@artist.com
+- Password: password123
 
-## Algorithm Complexity
+### Listener Account
+- Email: alex@listener.com
+- Password: password123
 
-- **Time Complexity**: 
-  - Best Case: O(n) for already sorted data
-  - Average Case: O(n log n)
-  - Worst Case: O(n log n)
-- **Space Complexity**: O(n) auxiliary space
-- **Stability**: Yes, maintains relative order of equal elements
-- **Adaptive**: Yes, performs better on partially sorted data
+## Prototype Limitations
+
+This prototype focuses on demonstrating the core user experience and has the following limitations:
+
+- Limited catalog of music (pre-loaded samples)
+- Simulated distribution to streaming platforms
+- Mock analytics data
+- Simplified payment flows without actual payment processing
+- Limited social features
+
+## Next Steps
+
+Following the prototype development, the next steps will include:
+
+1. User testing and feedback collection
+2. Refinement of features based on feedback
+3. Development of a more comprehensive MVP
+4. Integration with actual third-party services
+5. Preparation for beta launch
+
+## License
+
+This project is proprietary and confidential. All rights reserved.
+
+## Contact
+
+For more information about the HARMONI platform, please contact the HARMONI team.

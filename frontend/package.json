@@ -1,0 +1,39 @@
+{
+  "name": "harmoni-frontend",
+  "version": "0.1.0",
+  "description": "Frontend for HARMONI music platform prototype",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "keywords": [
+    "music",
+    "platform",
+    "streaming",
+    "artists",
+    "fans"
+  ],
+  "author": "HARMONI Team",
+  "license": "ISC",
+  "dependencies": {
+    "@heroicons/react": "^2.0.18",
+    "@reduxjs/toolkit": "^1.9.5",
+    "axios": "^1.4.0",
+    "chart.js": "^4.5.0",
+    "framer-motion": "^10.12.16",
+    "next": "^15.4.2",
+    "postcss": "^8.5.6",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.9.0",
+    "react-redux": "^8.0.7",
+    "tailwindcss": "^3.4.17",
+    "wavesurfer.js": "^6.6.3"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21"
+  }
+}
