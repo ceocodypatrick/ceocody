@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import { Library } from './pages/Library';
 import { MusicDemo } from './pages/MusicDemo';
+import { AIDemo } from './pages/AIDemo';
 import '../index.css';
 
 // Protected Route Component
@@ -90,6 +91,15 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <MusicDemo />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/ai-demo"
+              element={
+                <ProtectedRoute>
+                  <AIDemo />
                 </ProtectedRoute>
               }
             />

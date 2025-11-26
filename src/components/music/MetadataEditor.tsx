@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Save, Upload, Music, Tag, Calendar, Clock, Disc } from 'lucide-react';
+import { X, Save, Upload, Music, Tag, Calendar, Clock, Disc, Brain } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
@@ -20,6 +20,13 @@ interface AudioMetadata {
 
 interface MetadataEditorProps {
   metadata: AudioMetadata;
+  aiSuggestions?: {
+    bpm?: number;
+    key?: string;
+    genre?: string;
+    mood?: string;
+    confidence?: number;
+  };
   onSave: (metadata: AudioMetadata) => void;
   onCancel: () => void;
 }
@@ -47,10 +54,18 @@ const MOOD_OPTIONS = [
 
 export const MetadataEditor: React.FC<MetadataEditorProps> = ({
   metadata: initialMetadata,
+  aiSuggestions,
   onSave,
   onCancel,
 }) => {
-  const [metadata, setMetadata] = useState<AudioMetadata>(initialMetadata);
+  const [metadata, setMetadata] = useState<AudioMetadata>({
+    ...initialMetadata,
+    // Apply AI suggestions if present
+    bpm: aiSuggestions?.bpm || initialMetadata.bpm,
+    key: aiSuggestions?.key || initialMetadata.key,
+    genre: aiSuggestions?.genre || initialMetadata.genre,
+    mood: aiSuggestions?.mood || initialMetadata.mood,
+  });
   const [tagInput, setTagInput] = useState('');
   const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
 
@@ -120,6 +135,27 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({
               <X className="w-6 h-6" />
             </button>
           </div>
+
+          {/* AI Analysis Status */}
+          {aiSuggestions && (
+            <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+              <div className="flex items-center space-x-2">
+                <Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <h3 className="font-semibold text-purple-900 dark:text-purple-300">
+                  AI Analysis Complete
+                </h3>
+                {aiSuggestions.confidence && (
+                  <span className="px-2 py-1 bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200 text-xs rounded-full">
+                    {Math.round(aiSuggestions.confidence * 100)}% confidence
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-purple-700 dark:text-purple-400 mt-1">
+                AI has analyzed your audio and suggested values for BPM, key, genre, and mood. 
+                Fields with purple highlights contain AI suggestions that you can accept or modify.
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Cover Art Section */}
@@ -217,11 +253,20 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Genre
+                    {aiSuggestions?.genre && (
+                      <span className="ml-2 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-xs rounded-full">
+                        AI: {aiSuggestions.genre}
+                      </span>
+                    )}
                   </label>
                   <select
                     value={metadata.genre || ''}
                     onChange={(e) => handleInputChange('genre', e.target.value)}
-                    className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className={`w-full px-3 py-2 bg-white dark:bg-gray-800 border rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                      aiSuggestions?.genre 
+                        ? 'border-purple-300 dark:border-purple-600 focus:border-purple-500' 
+                        : 'border-gray-300 dark:border-gray-700'
+                    }`}
                   >
                     <option value="">Select genre</option>
                     {GENRE_OPTIONS.map(genre => (
@@ -247,6 +292,11 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     BPM
+                    {aiSuggestions?.bpm && (
+                      <span className="ml-2 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-xs rounded-full">
+                        AI: {aiSuggestions.bpm}
+                      </span>
+                    )}
                   </label>
                   <Input
                     type="number"
@@ -255,17 +305,27 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({
                     placeholder="120"
                     min="1"
                     max="300"
+                    className={aiSuggestions?.bpm ? 'border-purple-300 dark:border-purple-600 focus:border-purple-500' : ''}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Key
+                    {aiSuggestions?.key && (
+                      <span className="ml-2 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-xs rounded-full">
+                        AI: {aiSuggestions.key}
+                      </span>
+                    )}
                   </label>
                   <select
                     value={metadata.key || ''}
                     onChange={(e) => handleInputChange('key', e.target.value)}
-                    className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className={`w-full px-3 py-2 bg-white dark:bg-gray-800 border rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                      aiSuggestions?.key 
+                        ? 'border-purple-300 dark:border-purple-600 focus:border-purple-500' 
+                        : 'border-gray-300 dark:border-gray-700'
+                    }`}
                   >
                     <option value="">Select key</option>
                     {KEY_OPTIONS.map(key => (
@@ -277,11 +337,20 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Mood
+                    {aiSuggestions?.mood && (
+                      <span className="ml-2 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-xs rounded-full">
+                        AI: {aiSuggestions.mood}
+                      </span>
+                    )}
                   </label>
                   <select
                     value={metadata.mood || ''}
                     onChange={(e) => handleInputChange('mood', e.target.value)}
-                    className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className={`w-full px-3 py-2 bg-white dark:bg-gray-800 border rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                      aiSuggestions?.mood 
+                        ? 'border-purple-300 dark:border-purple-600 focus:border-purple-500' 
+                        : 'border-gray-300 dark:border-gray-700'
+                    }`}
                   >
                     <option value="">Select mood</option>
                     {MOOD_OPTIONS.map(mood => (

@@ -13,6 +13,7 @@ import {
   Headphones,
   Settings,
   HelpCircle,
+  Brain,
   LogOut
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
@@ -55,6 +56,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         { icon: Music, label: 'My Projects', href: '/projects' },
         { icon: Users, label: 'Collaborators', href: '/collaborators' },
         { icon: FolderOpen, label: 'Library', href: '/library' },
+        { icon: Brain, label: 'AI Demo', href: '/ai-demo' },
       ]
     },
     {

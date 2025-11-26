@@ -17,12 +17,14 @@ import {
   Clock,
   Calendar,
   SortAsc,
-  SortDesc
+  SortDesc,
+  Brain
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import { AudioUpload } from '../components/music/AudioUpload';
+import { AIAnalysisResult } from '../utils/ai-analysis';
 
 interface AudioFile {
   id: string;
@@ -166,6 +168,7 @@ export const Library: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [showUpload, setShowUpload] = useState(false);
   const [audioFiles, setAudioFiles] = useState<AudioFile[]>(mockAudioFiles);
+  const [aiAnalyses, setAiAnalyses] = useState<{ file: File; analysis: AIAnalysisResult }[]>([]);
 
   // Get unique genres
   const genres = useMemo(() => {
@@ -247,6 +250,34 @@ export const Library: React.FC = () => {
     }
   };
 
+  const handleAIAnalysisComplete = (analyses: { file: File; analysis: AIAnalysisResult }[]) => {
+    console.log('AI analyses completed:', analyses);
+    setAiAnalyses(analyses);
+    
+    // Optionally create new audio files from uploaded and analyzed files
+    const newAudioFiles: AudioFile[] = analyses.map(({ file, analysis }, index) => ({
+      id: `ai-${Date.now()}-${index}`,
+      title: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension
+      artist: 'Unknown Artist',
+      album: undefined,
+      duration: 0, // Will be calculated when audio is processed
+      size: file.size,
+      format: file.type.split('/')[1] || 'unknown',
+      genre: analysis.genre || undefined,
+      mood: analysis.mood || undefined,
+      key: analysis.key || undefined,
+      bpm: analysis.bpm || undefined,
+      dateAdded: new Date(),
+      coverArt: undefined,
+      isFavorite: false,
+      tags: [],
+      folder: undefined,
+    }));
+
+    // Add to existing files or update them
+    setAudioFiles(prev => [...prev, ...newAudioFiles]);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -271,6 +302,7 @@ export const Library: React.FC = () => {
               console.log('Uploaded files:', files);
               setShowUpload(false);
             }}
+            onAnalysisComplete={handleAIAnalysisComplete}
           />
         </div>
       )}
