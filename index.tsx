@@ -1,8 +1,28 @@
 
 import React, { useState, useCallback, useEffect, useRef, FC, PropsWithChildren, Component, ErrorInfo, ReactNode, createContext, useReducer, useContext, useMemo, ChangeEvent, KeyboardEvent } from 'react';
 import ReactDOM from 'react-dom/client';
-import { GoogleGenAI, Type, GenerateContentResponse, Chat } from "@google/genai";
-import { marked } from 'https://esm.sh/marked@13.0.0';
+
+type GoogleGenAIImport = typeof import('@google/genai');
+type GoogleGenAIClient = import('@google/genai').GoogleGenAI;
+type ChatSession = import('@google/genai').Chat;
+type SchemaHelper = GoogleGenAIImport['Type'];
+
+let genAiModulePromise: Promise<GoogleGenAIImport> | null = null;
+const loadGenAiModule = () => {
+    if (!genAiModulePromise) {
+        genAiModulePromise = import('@google/genai');
+    }
+    return genAiModulePromise;
+};
+
+type MarkedModule = typeof import('marked');
+let markedModulePromise: Promise<MarkedModule> | null = null;
+const loadMarkedModule = () => {
+    if (!markedModulePromise) {
+        markedModulePromise = import('marked');
+    }
+    return markedModulePromise;
+};
 
 
 // Note: In a real environment, you would install these dependencies.
@@ -602,55 +622,74 @@ const useAppContext = () => {
 // GEMINI API SERVICE
 //================================================================
 class GeminiService {
-    private ai: GoogleGenAI | null = null;
-    private chat: Chat | null = null;
+    private ai: GoogleGenAIClient | null = null;
+    private chat: ChatSession | null = null;
+    private typeHelper: SchemaHelper | null = null;
+    private initializationPromise: Promise<void> | null = null;
     private dispatch: React.Dispatch<AppAction>;
 
     constructor(dispatch: React.Dispatch<AppAction>) {
         this.dispatch = dispatch;
-        this.initialize();
-    }
-    
-    private initialize() {
-        try {
-            if (process.env.API_KEY) {
-                this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            }
-        } catch (error) {
-            console.error("Failed to initialize GoogleGenAI:", error);
-            this.dispatch({ type: 'ADD_NOTIFICATION', payload: { message: "Could not initialize AI service. Please check your API key.", type: 'error' } });
-        }
     }
 
-    private getAI(): GoogleGenAI {
+    private ensureInitialized() {
+        if (!this.initializationPromise) {
+            this.initializationPromise = (async () => {
+                try {
+                    const module = await loadGenAiModule();
+                    this.typeHelper = module.Type;
+                    if (process.env.API_KEY) {
+                        this.ai = new module.GoogleGenAI({ apiKey: process.env.API_KEY });
+                    }
+                } catch (error) {
+                    console.error("Failed to initialize GoogleGenAI:", error);
+                    this.dispatch({
+                        type: 'ADD_NOTIFICATION',
+                        payload: { message: "Could not initialize AI service. Please check your API key.", type: 'error' }
+                    });
+                    throw error;
+                }
+            })();
+        }
+        return this.initializationPromise;
+    }
+
+    private async getAI(): Promise<GoogleGenAIClient> {
+        await this.ensureInitialized();
         if (!this.ai) {
-             this.initialize();
-             if(!this.ai) {
-                const errorMsg = "API Key not configured. Please set up your API key.";
-                this.dispatch({type: 'SET_ERROR', payload: { key: 'audience', value: errorMsg}}); // use a generic key
-                throw new Error(errorMsg);
-             }
+            const errorMsg = "API Key not configured. Please set up your API key.";
+            this.dispatch({ type: 'SET_ERROR', payload: { key: 'audience', value: errorMsg } });
+            throw new Error(errorMsg);
         }
         return this.ai;
+    }
+
+    private async getSchemaHelper(): Promise<SchemaHelper> {
+        await this.ensureInitialized();
+        if (!this.typeHelper) {
+            throw new Error('Schema helper not initialized');
+        }
+        return this.typeHelper;
     }
 
     private async generate<T>(
         key: keyof DashboardData | keyof LoadingStates,
         prompt: string,
-        schema: any,
+        schemaBuilder: (Type: SchemaHelper) => any,
         storeInState: boolean = true
     ): Promise<T> {
         this.dispatch({ type: 'SET_LOADING', payload: { key, value: true } });
         this.dispatch({ type: 'SET_ERROR', payload: { key, value: null } });
 
         try {
-            const ai = this.getAI();
+            const ai = await this.getAI();
+            const Type = await this.getSchemaHelper();
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash',
                 contents: prompt,
                 config: {
                     responseMimeType: "application/json",
-                    responseSchema: schema,
+                    responseSchema: schemaBuilder(Type),
                 }
             });
             const data = JSON.parse(response.text) as T;
@@ -670,7 +709,7 @@ class GeminiService {
     // ... other service methods
     async generateAudienceAnalysis(artistInfo: string): Promise<Audience> {
         const prompt = `Analyze the potential audience for a music artist with the following description: "${artistInfo}". Provide a detailed breakdown of demographics, psychographics, and online behavior. Your analysis should be comprehensive and actionable for marketing purposes.`;
-        const schema = {
+        return this.generate<Audience>('audience', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 artistName: { type: Type.STRING },
@@ -678,13 +717,12 @@ class GeminiService {
                 psychographics: { type: Type.OBJECT, properties: { interests: {type: Type.ARRAY, items: {type: Type.STRING}}, values: {type: Type.ARRAY, items: {type: Type.STRING}}, personalityTraits: {type: Type.ARRAY, items: {type: Type.STRING}}}},
                 onlineBehavior: { type: Type.OBJECT, properties: { socialMediaUsage: {type: Type.ARRAY, items: {type: Type.STRING}}, preferredContent: {type: Type.ARRAY, items: {type: Type.STRING}}, onlineShopping: {type: Type.STRING}}},
             }
-        };
-        return this.generate<Audience>('audience', prompt, schema);
+        }));
     }
     
     async generateStrategicInsights(audience: Audience): Promise<Insight[]> {
         const prompt = `Based on this audience profile for ${audience.artistName}, generate 3-5 key strategic insights. Each insight should have a title, a short description, and a piece of actionable advice for the artist to grow their fanbase. Audience: ${JSON.stringify(audience)}`;
-        const schema = {
+        return this.generate<Insight[]>('insights', prompt, (Type) => ({
              type: Type.ARRAY,
              items: {
                  type: Type.OBJECT,
@@ -694,13 +732,12 @@ class GeminiService {
                      actionable_advice: { type: Type.STRING },
                  }
              }
-        };
-        return this.generate<Insight[]>('insights', prompt, schema);
+        }));
     }
     
     async generateMarketAnalysis(artistInfo: string): Promise<MarketAnalysis> {
         const prompt = `Create a detailed market analysis for a music artist described as: "${artistInfo}". Include a SWOT analysis, identify 3-5 potential competitors with their strengths and weaknesses, list current market trends relevant to the artist, and suggest the best platforms for them to target.`;
-        const schema = {
+        return this.generate<MarketAnalysis>('marketAnalysis', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 swot: { type: Type.OBJECT, properties: { strengths: {type: Type.ARRAY, items: {type: Type.STRING}}, weaknesses: {type: Type.ARRAY, items: {type: Type.STRING}}, opportunities: {type: Type.ARRAY, items: {type: Type.STRING}}, threats: {type: Type.ARRAY, items: {type: Type.STRING}}}},
@@ -708,26 +745,24 @@ class GeminiService {
                 market_trends: { type: Type.ARRAY, items: { type: Type.STRING }},
                 target_platforms: { type: Type.ARRAY, items: { type: Type.STRING }},
             }
-        };
-        return this.generate<MarketAnalysis>('marketAnalysis', prompt, schema);
+        }));
     }
 
     async generateContentPlan(artistInfo: string, audience: Audience, market: MarketAnalysis): Promise<ContentPlan> {
         const prompt = `Develop a content plan for ${audience.artistName}, an artist described as "${artistInfo}". The target audience is ${JSON.stringify(audience.demographics)}. The artist should focus on these platforms: ${market.target_platforms.join(', ')}. Define 3 content pillars, generate 5-7 specific content ideas with platform and format, and create a posting schedule.`;
-        const schema = {
+        return this.generate<ContentPlan>('contentPlan', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 content_pillars: { type: Type.ARRAY, items: { type: Type.STRING } },
                 content_ideas: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { platform: {type: Type.STRING}, idea: {type: Type.STRING}, format: {type: Type.STRING}, potential_impact: {type: Type.STRING}}}},
                 posting_schedule: { type: Type.OBJECT, properties: { platform: {type: Type.STRING}, frequency: {type: Type.STRING}, best_time_to_post: {type: Type.STRING}}},
             }
-        };
-        return this.generate<ContentPlan>('contentPlan', prompt, schema);
+        }));
     }
     
     async generatePressRelease(releaseInfo: string, artistBio: ArtistBio): Promise<PressRelease> {
         const prompt = `Write a professional press release for a music release with the following details: "${releaseInfo}". Use the artist's bio for context. The press release needs a catchy headline, a subheadline, a compelling body, the standard artist boilerplate, and contact information. Artist Bio: ${artistBio.medium}`;
-        const schema = {
+        return this.generate<PressRelease>('pressRelease', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 headline: { type: Type.STRING },
@@ -736,52 +771,48 @@ class GeminiService {
                 boilerplate: { type: Type.STRING },
                 contact_info: { type: Type.STRING },
             }
-        };
-        return this.generate<PressRelease>('pressRelease', prompt, schema);
+        }));
     }
     
     async generateFinancialPlan(artistInfo: string, audience: Audience): Promise<FinancialPlan> {
         const prompt = `Create a high-level financial plan for an artist like "${artistInfo}" targeting an audience like "${JSON.stringify(audience.demographics)}". Identify 5-7 potential revenue streams with short-term and long-term potential. Suggest a budget allocation percentage across key categories (e.g., marketing, production, touring). Outline 3-5 key financial goals.`;
-        const schema = {
+        return this.generate<FinancialPlan>('financialPlan', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 revenue_streams: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { stream: {type: Type.STRING}, short_term_potential: {type: Type.STRING}, long_term_potential: {type: Type.STRING}}}},
                 budget_allocation: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { category: {type: Type.STRING}, percentage: {type: Type.NUMBER}, notes: {type: Type.STRING}}}},
                 financial_goals: { type: Type.ARRAY, items: { type: Type.STRING }},
             }
-        };
-        return this.generate<FinancialPlan>('financialPlan', prompt, schema);
+        }));
     }
 
     async getSummitScore(dashboardData: DashboardData): Promise<SummitScoreData> {
         const prompt = `Analyze the following artist dashboard data and calculate a "Summit Score" from 0 to 100. The score should reflect the artist's overall career readiness and strategic planning. A score of 100 means they have a comprehensive, professional plan across all areas. Provide a brief explanation for the score and list the top 3 areas for improvement. Data: ${JSON.stringify(dashboardData)}`;
-        const schema = {
+        return this.generate<SummitScoreData>('summitScore', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 score: { type: Type.NUMBER },
                 explanation: { type: Type.STRING },
                 areas_for_improvement: { type: Type.ARRAY, items: { type: Type.STRING }},
             }
-        };
-        return this.generate<SummitScoreData>('summitScore', prompt, schema);
+        }));
     }
     
     async generateMasterProposal(dashboardData: DashboardData): Promise<MasterProposal> {
         const prompt = `Based on the complete dashboard data, generate a comprehensive master artist proposal. This document should be suitable to send to a potential manager, label, or investor. It needs a compelling executive summary and detailed sections covering audience, market position, content strategy, financial plan, and brand identity. Data: ${JSON.stringify(dashboardData)}`;
-        const schema = {
+        return this.generate<MasterProposal>('masterProposal', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 title: { type: Type.STRING },
                 executive_summary: { type: Type.STRING },
                 sections: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: {type: Type.STRING}, content: {type: Type.STRING}}}},
             }
-        };
-        return this.generate<MasterProposal>('masterProposal', prompt, schema);
+        }));
     }
     
     async startChat(systemInstruction: string) {
         try {
-            const ai = this.getAI();
+            const ai = await this.getAI();
             // Initialize chat only if it hasn't been initialized yet.
             if (!this.chat) {
                 this.chat = ai.chats.create({
@@ -825,7 +856,8 @@ class GeminiService {
         this.dispatch({ type: 'SET_LOADING', payload: { key: 'reputationData', value: true } });
         this.dispatch({ type: 'SET_ERROR', payload: { key: 'reputationData', value: null } });
         try {
-            const ai = this.getAI();
+            const ai = await this.getAI();
+            const Type = await this.getSchemaHelper();
             const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
                 contents: `Analyze the public reputation of the artist "${artistName}". Summarize the general sentiment, identify key discussion themes, and provide links to recent, relevant articles or social media posts.`,
@@ -872,24 +904,25 @@ class GeminiService {
 
     async generateReleasePlan(artistName: string, releaseTitle: string, releaseDate: string): Promise<ReleasePlan> {
         const prompt = `Create a comprehensive release plan checklist for ${artistName}'s upcoming release "${releaseTitle}" scheduled for ${releaseDate}. The plan should be broken down into timeframes (e.g., "3 Months Out", "1 Month Out", "Release Week", "Post-Release"). Each timeframe should have categorized task groups (e.g., "Production", "Marketing", "Distribution") with specific, actionable checklist items.`;
-        const taskSchema = { type: Type.OBJECT, properties: { text: { type: Type.STRING }, completed: { type: Type.BOOLEAN } } };
-        const groupSchema = { type: Type.OBJECT, properties: { category: { type: Type.STRING }, items: { type: Type.ARRAY, items: taskSchema } } };
-        const timeframeSchema = { type: Type.OBJECT, properties: { title: { type: Type.STRING }, groups: { type: Type.ARRAY, items: groupSchema } } };
-        const schema = {
-            type: Type.OBJECT,
-            properties: {
-                artistName: { type: Type.STRING },
-                releaseTitle: { type: Type.STRING },
-                releaseDate: { type: Type.STRING },
-                timeframes: { type: Type.ARRAY, items: timeframeSchema }
-            }
-        };
-        return this.generate<ReleasePlan>('releasePlan', prompt, schema);
+        return this.generate<ReleasePlan>('releasePlan', prompt, (Type) => {
+            const taskSchema = { type: Type.OBJECT, properties: { text: { type: Type.STRING }, completed: { type: Type.BOOLEAN } } };
+            const groupSchema = { type: Type.OBJECT, properties: { category: { type: Type.STRING }, items: { type: Type.ARRAY, items: taskSchema } } };
+            const timeframeSchema = { type: Type.OBJECT, properties: { title: { type: Type.STRING }, groups: { type: Type.ARRAY, items: groupSchema } } };
+            return {
+                type: Type.OBJECT,
+                properties: {
+                    artistName: { type: Type.STRING },
+                    releaseTitle: { type: Type.STRING },
+                    releaseDate: { type: Type.STRING },
+                    timeframes: { type: Type.ARRAY, items: timeframeSchema }
+                }
+            };
+        });
     }
     
     async analyzeFanMail(messages: string[]): Promise<FanMailAnalysis> {
         const prompt = `Analyze this batch of fan mail/DMs. Provide a sentiment analysis (percentage positive, neutral, negative), identify key themes and topics fans are talking about, suggest 3 categories of templated replies (e.g., "Appreciation", "Answering Question"), and generate 3 content ideas based on what fans are saying. Messages: ${JSON.stringify(messages)}`;
-        const schema = {
+        return this.generate<FanMailAnalysis>('fanMailAnalysis', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 sentiment: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { name: { type: Type.STRING }, value: { type: Type.NUMBER } } } },
@@ -897,28 +930,26 @@ class GeminiService {
                 suggestedReplies: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { category: { type: Type.STRING }, text: { type: Type.STRING } } } },
                 contentIdeas: { type: Type.ARRAY, items: { type: Type.STRING } },
             }
-        };
-        return this.generate<FanMailAnalysis>('fanMailAnalysis', prompt, schema);
+        }));
     }
 
     async generateTourPlan(artistName: string, tourScale: string, targetRegion: string, audience: Audience): Promise<TourPlan> {
         const prompt = `Create a tour plan for ${artistName}. The tour is at a "${tourScale}" scale, targeting the "${targetRegion}" region. The target audience is ${JSON.stringify(audience.demographics)}. Suggest 5-7 suitable venues with location and reasoning. Create a sample 10-song setlist. Brainstorm 3-5 merchandise ideas that would appeal to the audience.`;
-        const schema = {
+        return this.generate<TourPlan>('tourPlan', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 venues: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { name: { type: Type.STRING }, location: { type: Type.STRING }, capacity: { type: Type.STRING }, contact: { type: Type.STRING }, reasoning: { type: Type.STRING } } } },
                 setlist: { type: Type.OBJECT, properties: { songs: { type: Type.ARRAY, items: { type: Type.STRING } }, notes: { type: Type.STRING } } },
                 merchandise: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { item: { type: Type.STRING }, description: { type: Type.STRING } } } },
             }
-        };
-        return this.generate<TourPlan>('tourPlan', prompt, schema);
+        }));
     }
 
     async generateImage(prompt: string, aspectRatio: string): Promise<AIGeneratedImage> {
         this.dispatch({ type: 'SET_LOADING', payload: { key: 'aiGeneratedImage', value: true } });
         this.dispatch({ type: 'SET_ERROR', payload: { key: 'aiGeneratedImage', value: null } });
         try {
-            const ai = this.getAI();
+            const ai = await this.getAI();
             const response = await ai.models.generateImages({
                 model: 'imagen-3.0-generate-002',
                 prompt: prompt,
@@ -944,20 +975,19 @@ class GeminiService {
     
     async generateLyricIdeas(theme: string, mood: string): Promise<LyricIdeaSet> {
         const prompt = `Generate lyric ideas for a song with the theme "${theme}" and mood "${mood}". Provide 5 potential song titles, 3 song concepts with brief descriptions, and a suggested lyrical progression (e.g., Verse 1 -> Chorus -> Verse 2 -> Bridge -> Chorus).`;
-        const schema = {
+        return this.generate<LyricIdeaSet>('lyricIdeas', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 titles: { type: Type.ARRAY, items: { type: Type.STRING } },
                 concepts: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, description: { type: Type.STRING } } } },
                 progression: { type: Type.STRING },
             }
-        };
-        return this.generate<LyricIdeaSet>('lyricIdeas', prompt, schema);
+        }));
     }
     
     async generateSocialPosts(releaseInfo: string, platform: SocialPost['platform']): Promise<SocialPost[]> {
         const prompt = `Create 3 distinct social media posts for the platform "${platform}" to promote a release with these details: "${releaseInfo}". Each post should have unique content and a set of relevant hashtags.`;
-        const schema = {
+        const posts = await this.generate<SocialPost[]>('socialPosts', prompt, (Type) => ({
             type: Type.ARRAY,
             items: {
                 type: Type.OBJECT,
@@ -967,15 +997,14 @@ class GeminiService {
                     hashtags: { type: Type.ARRAY, items: { type: Type.STRING } }
                 }
             }
-        };
-        const posts = await this.generate<SocialPost[]>('socialPosts', prompt, schema);
+        }));
         // Ensure the platform is correctly set, as the model might hallucinate it.
         return posts.map(p => ({ ...p, platform }));
     }
 
     async generateMerchConcepts(artistName: string, brandKit: BrandKit): Promise<MerchConcept[]> {
         const prompt = `For an artist named ${artistName} with this brand identity: "${brandKit.brand_statement}", brainstorm 3 creative merchandise concepts. For each concept, provide the item type, a brief description, and a detailed prompt for an AI image generator to create the design.`;
-        const schema = {
+        return this.generate<MerchConcept[]>('merchConcepts', prompt, (Type) => ({
             type: Type.ARRAY,
             items: {
                 type: Type.OBJECT,
@@ -985,26 +1014,24 @@ class GeminiService {
                     design_prompt: { type: Type.STRING },
                 }
             }
-        };
-        return this.generate<MerchConcept[]>('merchConcepts', prompt, schema);
+        }));
     }
     
     async analyzeDealMemo(memoText: string): Promise<DealMemoAnalysis> {
         const prompt = `Analyze the following music industry deal memo. Provide a concise summary of the agreement, explain the key terms in simple language, and identify any potential red flags or points of negotiation for the artist. Memo Text: "${memoText}"`;
-        const schema = {
+        return this.generate<DealMemoAnalysis>('dealMemoAnalysis', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 summary: { type: Type.STRING },
                 key_terms: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { term: { type: Type.STRING }, explanation: { type: Type.STRING } } } },
                 red_flags: { type: Type.ARRAY, items: { type: Type.STRING } },
             }
-        };
-        return this.generate<DealMemoAnalysis>('dealMemoAnalysis', prompt, schema);
+        }));
     }
 
     async generateBrandKit(artistInfo: string): Promise<BrandKit> {
         const prompt = `Generate a complete brand kit for a music artist described as: "${artistInfo}". Include a concise brand statement, two distinct color palettes (e.g., Primary, Secondary) with hex codes, two font pairings (headline and body), and three detailed prompts for an AI image generator to create different logo styles.`;
-        const schema = {
+        return this.generate<BrandKit>('brandKit', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 brand_statement: { type: Type.STRING },
@@ -1012,8 +1039,7 @@ class GeminiService {
                 font_pairings: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { headline: { type: Type.STRING }, body: { type: Type.STRING } } } },
                 logo_prompts: { type: Type.ARRAY, items: { type: Type.STRING } },
             }
-        };
-        return this.generate<BrandKit>('brandKit', prompt, schema);
+        }));
     }
     
     async transcribeAudio(base64Audio: string, mimeType: string, fileName: string): Promise<AudioTranscription> {
@@ -1021,7 +1047,7 @@ class GeminiService {
         this.dispatch({ type: 'SET_ERROR', payload: { key: 'audioTranscription', value: null } });
 
         try {
-            const ai = this.getAI();
+            const ai = await this.getAI();
             const audioPart = {
                 inlineData: {
                     mimeType,
@@ -1046,15 +1072,14 @@ class GeminiService {
     
     async generateArtistBio(artistInfo: string, dashboardData: DashboardData): Promise<ArtistBio> {
         const prompt = `Write three versions of a biography (short, medium, long) for a music artist described as: "${artistInfo}". Use the existing dashboard data for additional context if available. The tone should be professional and engaging. Context: ${JSON.stringify(dashboardData)}`;
-        const schema = {
+        return this.generate<ArtistBio>('artistBio', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 short: { type: Type.STRING, description: "1-2 sentences, for social media profiles." },
                 medium: { type: Type.STRING, description: "1 paragraph, for press releases or EPKs." },
                 long: { type: Type.STRING, description: "3-4 paragraphs, for a website 'About' page." },
             }
-        };
-        return this.generate<ArtistBio>('artistBio', prompt, schema);
+        }));
     }
     
     async parseContributionsAndSuggestSplits(songTitle: string, collaboratorNames: string[], contributionText: string): Promise<Omit<RoyaltySplit, 'id' | 'isFinalized'>> {
@@ -1068,7 +1093,8 @@ class GeminiService {
     - Ensure every collaborator from the list is included in the final output. If their contribution isn't mentioned, assign them 0% and write "No specific contribution mentioned" in their contribution field.
     - Return a JSON object with the song title and a list of collaborators, each with their name, a description of their parsed contribution, and their suggested percentage.
     `;
-        const schema = {
+        // Use a different key for loading/error state so it doesn't conflict with other tools
+        return this.generate<Omit<RoyaltySplit, 'id' | 'isFinalized'>>('royaltySplitSuggestion', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 songTitle: { type: Type.STRING },
@@ -1086,9 +1112,7 @@ class GeminiService {
                 }
             },
             required: ["songTitle", "collaborators"]
-        };
-        // Use a different key for loading/error state so it doesn't conflict with other tools
-        return this.generate<Omit<RoyaltySplit, 'id' | 'isFinalized'>>('royaltySplitSuggestion', prompt, schema, false);
+        }), false);
     }
 
     async generateSyncPitch(songDescription: string, showDescription: string): Promise<SyncPitch> {
@@ -1096,7 +1120,7 @@ class GeminiService {
         Song Description: "${songDescription}"
         Show Description: "${showDescription}"
         Based on this, suggest 3-5 real music supervisors (with their company) who would be a good fit and explain why. Then, write a concise, professional pitch email to one of them, including a subject line and body.`;
-        const schema = {
+        return this.generate<SyncPitch>('syncPitch', prompt, (Type) => ({
             type: Type.OBJECT,
             properties: {
                 music_supervisors: {
@@ -1118,8 +1142,7 @@ class GeminiService {
                     }
                 }
             }
-        };
-        return this.generate<SyncPitch>('syncPitch', prompt, schema);
+        }));
     }
     
     async analyzeArtwork(base64ImageA: string, mimeTypeA: string, base64ImageB: string, mimeTypeB: string, brandInfo: { artistName: string; brandStatement?: string; audience?: Audience }): Promise<ArtworkAnalysis> {
@@ -1127,7 +1150,8 @@ class GeminiService {
         this.dispatch({ type: 'SET_ERROR', payload: { key: 'artworkAnalysis', value: null } });
 
         try {
-            const ai = this.getAI();
+            const ai = await this.getAI();
+            const Type = await this.getSchemaHelper();
             const cleanBase64A = base64ImageA.split(',')[1];
             const cleanBase64B = base64ImageB.split(',')[1];
 
@@ -1253,6 +1277,27 @@ const ActionButton: FC<PropsWithChildren<{ onClick: (e?: any) => void, loading?:
 
 const MarkdownRenderer: FC<{ content: string, className?: string }> = ({ content, className = '' }) => {
   const [copied, setCopied] = useState(false);
+  const [parser, setParser] = useState<MarkedModule['marked'] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    loadMarkedModule()
+      .then(mod => {
+        if (mounted) {
+          setParser(mod.marked);
+        }
+      })
+      .catch(error => {
+        console.error('Failed to load markdown parser', error);
+        if (mounted) {
+          setLoadError('Unable to render preview');
+        }
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const handleCopy = () => {
     copyToClipboard(content);
@@ -1260,14 +1305,20 @@ const MarkdownRenderer: FC<{ content: string, className?: string }> = ({ content
     setTimeout(() => setCopied(false), 2000);
   };
   
-  const rawHtml = useMemo(() => marked.parse(content || ""), [content]);
+  const rawHtml = useMemo(() => parser?.parse(content || "") ?? null, [parser, content]);
 
   return (
     <div className={`relative prose prose-invert prose-sm sm:prose-base max-w-none prose-h1:text-green-400 prose-h2:text-green-500 prose-a:text-indigo-400 hover:prose-a:text-indigo-300 ${className}`}>
-        <button onClick={handleCopy} className="absolute top-0 right-0 p-2 text-gray-400 hover:text-white transition rounded-lg bg-gray-700/50 hover:bg-gray-600/50">
+        <button onClick={handleCopy} className="absolute top-0 right-0 p-2 text-gray-400 hover:text-white transition rounded-lg bg-gray-700/50 hover:bg-gray-600/50" aria-label="Copy markdown">
             {copied ? <CheckCircleIcon /> : <ClipboardIcon />}
         </button>
-        <div dangerouslySetInnerHTML={{ __html: rawHtml }} />
+        {rawHtml ? (
+            <div dangerouslySetInnerHTML={{ __html: rawHtml }} />
+        ) : (
+            <div className="text-sm text-gray-400">
+                {loadError ? <span>{loadError}</span> : <pre className="whitespace-pre-wrap font-sans">{content}</pre>}
+            </div>
+        )}
     </div>
   );
 };
@@ -2216,8 +2267,11 @@ const SummitScore: FC<{ onGenerate: () => void; data?: SummitScoreData; loading?
                     cx="80"
                     cy="80"
                     style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
-                    />
-             <span className="absolute text-4xl font-bold text-white">{data?.score || <button onClick={onGenerate} className="text-sm bg-gray-600 p-2 rounded-full">Analyze</button>}</span>
+                />
+            </svg>
+            <span className="absolute text-4xl font-bold text-white">
+                {data?.score || <button onClick={onGenerate} className="text-sm bg-gray-600 p-2 rounded-full">Analyze</button>}
+            </span>
         </div>
         {data && (
             <div className="mt-4">
