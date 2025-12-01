@@ -1,6 +1,86 @@
 
-import React, { useState, useCallback, useEffect, useRef, FC, PropsWithChildren, Component, ErrorInfo, ReactNode, createContext, useReducer, useContext, useMemo, ChangeEvent, KeyboardEvent } from 'react';
+import React, { useState, useCallback, useEffect, useRef, FC, PropsWithChildren, Component, ErrorInfo, ReactNode, createContext, useReducer, useContext, useMemo, ChangeEvent, KeyboardEvent, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
+import type {
+  Audience,
+  Insight,
+  MarketAnalysis,
+  ContentPlan,
+  PressRelease,
+  FinancialPlan,
+  SummitScoreData,
+  RoyaltySplit,
+  MasterProposal,
+  ChatMessage,
+  ReputationData,
+  ReleasePlan,
+  FanMailAnalysis,
+  TourPlan,
+  AIGeneratedImage,
+  LyricIdeaSet,
+  SocialPost,
+  MerchConcept,
+  DealMemoAnalysis,
+  BrandKit,
+  AudioTranscription,
+  ArtistBio,
+  SyncPitch,
+  Guide,
+  Contact,
+  ArtworkAnalysis,
+  DashboardData,
+  LoadingStates,
+  ErrorStates,
+  AppNotification
+} from './types';
+import {
+  ArrowDownTrayIcon,
+  BookOpenIcon,
+  CalendarDaysIcon,
+  ChartBarIcon,
+  ChartTrendingUpIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  ClipboardDocumentCheckIcon,
+  ClipboardIcon,
+  ClipboardListIcon,
+  CurrencyDollarIcon,
+  DocumentDuplicateIcon,
+  DocumentTextIcon,
+  EnvelopeIcon,
+  FilmIcon,
+  FireIcon,
+  GiftIcon,
+  IdentificationIcon,
+  LightBulbIcon,
+  LockClosedIcon,
+  MapIcon,
+  MicrophoneIcon,
+  MountainIcon,
+  MusicalNoteIcon,
+  NewspaperIcon,
+  PaperAirplaneIcon,
+  PencilSquareIcon,
+  ScaleIcon,
+  ShareIcon,
+  SparklesIcon,
+  UserCheckIcon,
+  UserGroupIcon,
+  UsersIcon,
+  XCircleIcon,
+  CheckCircleIcon,
+  PlusCircleIcon
+} from './icons';
+import {
+  Card,
+  Section,
+  LoadingSpinner,
+  ErrorMessage,
+  FormInput,
+  FormTextArea,
+  ActionButton,
+  ToolCard
+} from './ui';
+import { fileToBase64 } from './utils';
 
 type GoogleGenAIImport = typeof import('@google/genai');
 type GoogleGenAIClient = import('@google/genai').GoogleGenAI;
@@ -23,6 +103,8 @@ const loadMarkedModule = () => {
     }
     return markedModulePromise;
 };
+
+const CreativeToolkitLazy = React.lazy(() => import('./creative-toolkit'));
 
 
 // Note: In a real environment, you would install these dependencies.
@@ -61,373 +143,7 @@ const { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
     Cell: () => null,
 };
 
-const useDropzone = window.useDropzone || ((options: any) => {
-    const onDrop = options.onDrop;
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && onDrop) {
-            onDrop(Array.from(event.target.files));
-        }
-    };
-    return { 
-        getRootProps: (props = {}) => ({...props}), 
-        getInputProps: (props = {}) => ({ ...props, type: 'file', onChange: handleFileChange, accept: options.accept, multiple: options.multiple }),
-        isDragActive: false
-    };
-});
 // html2canvas and jspdf will be accessed directly from the window object when needed.
-
-
-//================================================================
-// TYPE DEFINITIONS
-//================================================================
-interface Audience {
-  artistName: string;
-  demographics: {
-    ageRange: string;
-    gender: string;
-    topCountries: string[];
-    primaryLanguage: string;
-  };
-  psychographics: {
-    interests: string[];
-    values: string[];
-    personalityTraits: string[];
-  };
-  onlineBehavior: {
-    socialMediaUsage: string[];
-    preferredContent: string[];
-    onlineShopping: string;
-  };
-}
-
-interface Insight {
-  title: string;
-  description: string;
-  actionable_advice: string;
-}
-
-interface MarketAnalysis {
-  swot: {
-    strengths: string[];
-    weaknesses: string[];
-    opportunities: string[];
-    threats: string[];
-  };
-  competitors: {
-    name: string;
-    strengths: string;
-    weaknesses: string;
-  }[];
-  market_trends: string[];
-  target_platforms: string[];
-}
-
-interface ContentIdea {
-  platform: string;
-  idea: string;
-  format: string;
-  potential_impact: string;
-}
-
-interface ContentPlan {
-  content_pillars: string[];
-  content_ideas: ContentIdea[];
-  posting_schedule: {
-    platform: string;
-    frequency: string;
-    best_time_to_post: string;
-  };
-}
-
-interface PressRelease {
-  headline: string;
-  subheadline: string;
-  body: string;
-  boilerplate: string;
-  contact_info: string;
-}
-
-interface FinancialPlan {
-  revenue_streams: {
-    stream: string;
-    short_term_potential: string;
-    long_term_potential: string;
-  }[];
-  budget_allocation: {
-    category: string;
-    percentage: number;
-    notes: string;
-  }[];
-  financial_goals: string[];
-}
-
-interface SummitScoreData {
-  score: number;
-  explanation: string;
-  areas_for_improvement: string[];
-}
-
-interface RoyaltySplit {
-    id: number;
-    songTitle: string;
-    collaborators: {
-        name: string;
-        contribution: string;
-        percentage: number;
-    }[];
-    isFinalized: boolean;
-}
-
-interface MasterProposal {
-    title: string;
-    executive_summary: string;
-    sections: {
-        title: string;
-        content: string;
-    }[];
-}
-
-interface ChatMessage {
-    role: 'user' | 'assistant';
-    content: string;
-}
-
-interface ReputationMention {
-    uri: string;
-    title: string;
-}
-
-interface ReputationData {
-    summary: string;
-    themes: string[];
-    mentions: ReputationMention[];
-}
-
-interface ReleaseTask {
-    text: string;
-    completed: boolean;
-}
-
-interface ReleaseTaskGroup {
-    category: string;
-    items: ReleaseTask[];
-}
-
-interface ReleaseTimeframe {
-    title: string;
-    groups: ReleaseTaskGroup[];
-}
-
-interface ReleasePlan {
-    artistName: string;
-    releaseTitle: string;
-    releaseDate: string; // ISO string
-    timeframes: ReleaseTimeframe[];
-}
-
-interface SuggestedReply {
-    category: string;
-    text: string;
-}
-
-interface FanMailAnalysis {
-    sentiment: { name: string, value: number }[];
-    keyThemes: string[];
-    suggestedReplies: SuggestedReply[];
-    contentIdeas: string[];
-}
-
-interface VenueInfo {
-    name: string;
-    location: string;
-    capacity?: string;
-    contact?: string;
-    reasoning: string;
-}
-
-interface Setlist {
-    songs: string[];
-    notes: string;
-}
-
-interface MerchIdea {
-    item: string;
-    description: string;
-}
-
-interface TourPlan {
-    venues: VenueInfo[];
-    setlist: Setlist;
-    merchandise: MerchIdea[];
-}
-
-interface AIGeneratedImage {
-    prompt: string;
-    aspectRatio: string;
-    url: string;
-}
-
-interface LyricIdeaSet {
-    titles: string[];
-    concepts: { title: string; description: string; }[];
-    progression: string;
-}
-
-interface SocialPost {
-    platform: 'Instagram' | 'Twitter' | 'TikTok';
-    content: string;
-    hashtags: string[];
-}
-
-interface MerchConcept {
-    item: string;
-    description: string;
-    design_prompt: string;
-}
-
-interface AppNotification {
-    id: number;
-    message: string;
-    type: 'success' | 'error';
-}
-
-interface DealMemoAnalysis {
-    summary: string;
-    key_terms: { term: string; explanation: string; }[];
-    red_flags: string[];
-}
-
-interface BrandKit {
-    brand_statement: string;
-    color_palettes: { name: string; colors: string[]; }[];
-    font_pairings: { headline: string; body: string; }[];
-    logo_prompts: string[];
-}
-
-interface AudioTranscription {
-    text: string;
-    fileName: string;
-}
-
-interface ArtistBio {
-    short: string;
-    medium: string;
-    long: string;
-}
-
-interface SyncPitch {
-    music_supervisors: {
-        name: string;
-        company: string;
-        reasoning: string;
-    }[];
-    pitch_email: {
-        subject: string;
-        body: string;
-    };
-}
-
-interface Guide {
-    id: string;
-    title: string;
-    description: string;
-    unlocksWith: keyof DashboardData | 'initial';
-    icon: ReactNode;
-    content?: string; // Pre-loaded for static guides
-    cta?: {
-        text: string;
-        buttonText: string;
-        url: string;
-    }
-}
-
-interface Contact {
-    id: number;
-    name: string;
-    role: string;
-    company: string;
-    email?: string;
-    notes?: string;
-}
-
-interface ArtworkAnalysis {
-    analysisA: string;
-    analysisB: string;
-    recommendation: string;
-    winner: 'A' | 'B' | 'None';
-    imageA_url: string; // Store the URL of the analyzed image
-    imageB_url: string;
-}
-
-interface DashboardData {
-    audience?: Audience;
-    insights?: Insight[];
-    marketAnalysis?: MarketAnalysis;
-    contentPlan?: ContentPlan;
-    pressRelease?: PressRelease;
-    financialPlan?: FinancialPlan;
-    summitScore?: SummitScoreData;
-    masterProposal?: MasterProposal;
-    reputationData?: ReputationData;
-    releasePlan?: ReleasePlan;
-    fanMailAnalysis?: FanMailAnalysis;
-    tourPlan?: TourPlan;
-    aiGeneratedImage?: AIGeneratedImage;
-    lyricIdeas?: LyricIdeaSet;
-    socialPosts?: SocialPost[];
-    merchConcepts?: MerchConcept[];
-    dealMemoAnalysis?: DealMemoAnalysis;
-    brandKit?: BrandKit;
-    audioTranscription?: AudioTranscription;
-    artistBio?: ArtistBio;
-    royaltySplits?: RoyaltySplit[];
-    syncPitch?: SyncPitch;
-    contacts?: Contact[];
-    artworkAnalysis?: ArtworkAnalysis;
-}
-
-type LoadingStates = { [K in keyof DashboardData | 'chat' | 'guide' | 'royaltySplitSuggestion']?: boolean };
-type ErrorStates = { [K in keyof DashboardData | 'chat' | 'guide' | 'royaltySplitSuggestion']?: string | null };
-
-//================================================================
-// ICONS
-//================================================================
-const IconWrapper: FC<PropsWithChildren<{ className?: string }>> = ({ children, className = "h-6 w-6" }) => <div className={className}>{children}</div>;
-const ArrowDownTrayIcon = () => <IconWrapper className="h-5 w-5"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg></IconWrapper>;
-const BookOpenIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg></IconWrapper>;
-const CalendarDaysIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M-4.5 12h22.5" /></svg></IconWrapper>;
-const ChartBarIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg></IconWrapper>;
-const ChartTrendingUpIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-3.75-.625m3.75.625V3.375" /></svg></IconWrapper>;
-const ChatBubbleOvalLeftEllipsisIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193l-3.722.372c-1.131.113-2.056.63-2.785 1.275a2.11 2.11 0 01-2.999 0l-2.785-1.275a2.11 2.11 0 00-2.999 0l-3.722-.372C3.847 17.097 3 16.136 3 15v-4.286c0-.97.616-1.813 1.5-2.097l5.51-1.653a2.25 2.25 0 012.002 0l5.51 1.653z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" /></svg></IconWrapper>;
-const ClipboardDocumentCheckIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg></IconWrapper>;
-const ClipboardIcon = () => <IconWrapper className="h-4 w-4"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a2.25 2.25 0 01-2.25 2.25h-1.5a2.25 2.25 0 01-2.25-2.25v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg></IconWrapper>;
-const ClipboardListIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></IconWrapper>;
-const CurrencyDollarIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.826-1.106-2.156 0-2.982.553-.413 1.282-.62 2.003-.62.72 0 1.43.207 2 .62.98.728 2.245.244 2.52-1.014a1.125 1.125 0 00-1.342-1.342c-1.352-.903-3.053-.903-4.404 0-1.352.903-1.352 2.374 0 3.277" /></svg></IconWrapper>;
-const DocumentDuplicateIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375V9.375m0 9.375a3.375 3.375 0 01-3.375 3.375H9.375a3.375 3.375 0 01-3.375-3.375m7.5 10.375a3.375 3.375 0 003.375-3.375V9.375" /></svg></IconWrapper>;
-const DocumentTextIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg></IconWrapper>;
-const EnvelopeIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg></IconWrapper>;
-const FilmIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-2.25-1.313M21 7.5v6m0 0l-2.25 1.313M3 7.5l2.25-1.313M3 7.5v6m0 0l2.25 1.313M12 4.5v15m0 0l-3.75-2.162M12 19.5l3.75-2.162M12 19.5l-7.5-4.33v-6.34L12 4.5l7.5 4.33v6.34L12 19.5z" /></svg></IconWrapper>;
-const FireIcon = () => <IconWrapper className="text-green-400"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048l-1.04-1.04A8.25 8.25 0 0112 3c1.228 0 2.38.34 3.362.914l-2.02 2.02zM18 12a6 6 0 11-12 0 6 6 0 0112 0z" /></svg></IconWrapper>;
-const GiftIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a2.25 2.25 0 01-2.25 2.25H5.25a2.25 2.25 0 01-2.25-2.25v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg></IconWrapper>;
-const IdentificationIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg></IconWrapper>;
-const LightBulbIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-1.5c1.5-1.5 1.5-3.75 0-5.25S13.5 3.75 12 3.75s-3 1.5-3 3.75c0 .75.25 1.5.75 2.25 1.25 1.5 2.25 2.25 2.25 3.75zm-3 4.5h6" /></svg></IconWrapper>;
-const LockClosedIcon = () => <IconWrapper className="h-5 w-5"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg></IconWrapper>;
-const MapIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m0 0v2.25m0-2.25h1.5m-1.5 0H5.25m11.25-8.25v2.25m0-2.25h-1.5m1.5 0h.008v.008h-.008v-.008zm-3.75 0h.008v.008h-.008v-.008zm-3.75 0h.008v.008h-.008v-.008zM12 21a8.25 8.25 0 008.25-8.25c0-4.995-4.57-9.568-8.25-9.568S3.75 7.755 3.75 12.75A8.25 8.25 0 0012 21z" /></svg></IconWrapper>;
-const MicrophoneIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 013-3 3 3 0 013 3v8.25a3 3 0 01-3 3z" /></svg></IconWrapper>;
-const MountainIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg></IconWrapper>;
-const MusicalNoteIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V7.5A2.25 2.25 0 0019.5 5.25v-.003" /></svg></IconWrapper>;
-const NewspaperIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-13.5c-.621 0-1.125-.504-1.125-1.125v-9.75c0 .621.504-1.125 1.125-1.125H6.75" /></svg></IconWrapper>;
-const PaperAirplaneIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg></IconWrapper>;
-const PencilSquareIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg></IconWrapper>;
-const ScaleIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.036.243c-2.132 0-4.14-.71-5.685-1.942m-2.62-10.726C5.175 5.487 4.175 5.661 3.165 5.82c-.483.174-.711.703-.59 1.202L5.2 17.747c1.545 1.232 3.553 1.942 5.685 1.942.82 0 1.63-.12 2.4-.36l.004-.002z" /></svg></IconWrapper>;
-const ShareIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.186 2.25 2.25 0 00-3.933 2.186z" /></svg></IconWrapper>;
-const SparklesIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.25 7.5l.41-1.42a.5.5 0 01.98 0l.41 1.42a2.5 2.5 0 001.91 1.91l1.42.41a.5.5 0 010 .98l-1.42.41a2.5 2.5 0 00-1.91 1.91l-.41 1.42a.5.5 0 01-.98 0l-.41-1.42a2.5 2.5 0 00-1.91-1.91l-1.42-.41a.5.5 0 010-.98l1.42.41a2.5 2.5 0 001.91-1.91z" /></svg></IconWrapper>;
-const UserCheckIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h-3m-1.5-4.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 0115 0" /></svg></IconWrapper>;
-const UserGroupIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m-7.5-2.962a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5zM10.5 15a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zm10.5-9.75h-5.625c-.621 0-1.125.504-1.125 1.125v1.125c0 .621.504 1.125 1.125 1.125h5.625c.621 0 1.125-.504 1.125-1.125V6.375c0-.621-.504-1.125-1.125-1.125z" /></svg></IconWrapper>;
-const UsersIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-4.598M12 14.25a5.25 5.25 0 100-10.5 5.25 5.25 0 000 10.5z" /></svg></IconWrapper>;
-const XCircleIcon = () => <IconWrapper className="h-5 w-5 text-red-400"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></IconWrapper>;
-const CheckCircleIcon = () => <IconWrapper className="h-5 w-5 text-green-400"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></IconWrapper>;
-const PlusCircleIcon = () => <IconWrapper><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></IconWrapper>;
 
 
 //================================================================
@@ -441,16 +157,6 @@ const copyToClipboard = (text: string) => {
         console.error('Failed to copy text: ', err);
     });
 };
-
-const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = error => reject(error);
-    });
-};
-
 
 //================================================================
 // ERROR BOUNDARY
@@ -1204,66 +910,6 @@ class GeminiService {
 // UI COMPONENTS
 //================================================================
 
-const Card: FC<PropsWithChildren<{ className?: string }>> = ({ children, className = '' }) => (
-    <div className={`bg-gray-800 bg-opacity-50 backdrop-blur-sm border border-gray-700 rounded-xl shadow-lg p-6 ${className}`}>
-        {children}
-    </div>
-);
-
-const Section: FC<PropsWithChildren<{ title: string, icon: ReactNode, id: string }>> = ({ title, icon, id, children }) => (
-    <div id={id} className="mt-8">
-        <h2 className="text-3xl font-bold mb-4 text-green-400 flex items-center gap-3">
-            {icon} {title}
-        </h2>
-        <Card>{children}</Card>
-    </div>
-);
-
-
-const LoadingSpinner: FC<{ size?: number }> = ({ size = 24 }) => (
-    <svg className="animate-spin text-green-400" style={{ width: size, height: size }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-);
-
-const ErrorMessage: FC<{ error: string | null | undefined }> = ({ error }) => {
-    if (!error) return null;
-    return <div className="p-4 bg-red-900/50 border border-red-700 text-red-200 rounded-lg mt-4">{error}</div>;
-};
-
-const FormInput: FC<{ label: string, value: string, onChange: (e: ChangeEvent<HTMLInputElement>) => void, placeholder?: string, type?: string, required?: boolean, name?: string }> =
-    ({ label, value, onChange, placeholder, type = 'text', required = false, name }) => (
-    <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-300 mb-1">{label}</label>
-        <input
-            type={type}
-            value={value}
-            onChange={onChange}
-            placeholder={placeholder}
-            required={required}
-            name={name}
-            className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
-        />
-    </div>
-);
-
-const FormTextArea: FC<{ label: string, value: string, onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void, placeholder?: string, rows?: number, required?: boolean, name?: string }> =
-    ({ label, value, onChange, placeholder, rows = 4, required = false, name }) => (
-    <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-300 mb-1">{label}</label>
-        <textarea
-            value={value}
-            onChange={onChange}
-            placeholder={placeholder}
-            rows={rows}
-            required={required}
-            name={name}
-            className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
-        />
-    </div>
-);
-
 const ActionButton: FC<PropsWithChildren<{ onClick: (e?: any) => void, loading?: boolean, disabled?: boolean, className?: string }>> =
     ({ onClick, loading, children, disabled = false, className = '' }) => (
     <button
@@ -1910,32 +1556,6 @@ const ArtworkAnalysisDisplay: FC<{ data: ArtworkAnalysis }> = ({ data }) => {
 //================================================================
 // TOOL COMPONENTS
 //================================================================
-const ToolCard: FC<PropsWithChildren<{ icon: ReactNode; title: string; description: string; unlocked: boolean; unlocksWith?: (keyof DashboardData)[] }>> =
-    ({ icon, title, description, unlocked, unlocksWith = [], children }) => {
-        const { state } = useAppContext();
-        const missingDeps = unlocksWith.filter(dep => !state.dashboardData[dep]);
-
-        return (
-            <Card className="flex flex-col h-full">
-                <div className="flex items-center gap-4">
-                    <div className="text-green-400">{icon}</div>
-                    <h3 className="text-xl font-bold">{title}</h3>
-                </div>
-                <p className="text-gray-400 text-sm mt-2 mb-4 flex-grow">{description}</p>
-                {unlocked ? (
-                    <div>{children}</div>
-                ) : (
-                    <div className="mt-auto pt-4 border-t border-gray-700 text-center">
-                         <div className="flex items-center justify-center text-yellow-400 text-sm">
-                            <LockClosedIcon />
-                            <span className="ml-2">Requires: {missingDeps.join(', ')}</span>
-                        </div>
-                    </div>
-                )}
-            </Card>
-        );
-    };
-
 const AudienceAnalysisTool: FC<{ onGenerate: (p: string) => void, loading?: boolean }> = ({ onGenerate, loading }) => {
     const [artistInfo, setArtistInfo] = useState('');
     return (
@@ -1948,591 +1568,6 @@ const AudienceAnalysisTool: FC<{ onGenerate: (p: string) => void, loading?: bool
     );
 };
 
-const ArtistBioTool: FC<{ onGenerate: (p: string) => void, loading?: boolean }> = ({ onGenerate, loading }) => {
-    const [artistInfo, setArtistInfo] = useState('');
-    return (
-        <div>
-            <FormTextArea label="Provide key details for your bio" value={artistInfo} onChange={(e) => setArtistInfo(e.target.value)} placeholder="e.g., Band name, genre, key influences, members, origin story, recent achievements..." />
-            <ActionButton onClick={() => onGenerate(artistInfo)} loading={loading} disabled={!artistInfo}>
-                <IdentificationIcon /> Generate Bio
-            </ActionButton>
-        </div>
-    );
-};
-
-const BrandKitTool: FC<{ onGenerate: (p: string) => void, loading?: boolean }> = ({ onGenerate, loading }) => {
-    const [artistInfo, setArtistInfo] = useState('');
-    return (
-        <div>
-            <FormTextArea label="Describe your brand's vibe" value={artistInfo} onChange={(e) => setArtistInfo(e.target.value)} placeholder="e.g., moody and atmospheric, high-energy and rebellious, vintage and nostalgic..." />
-            <ActionButton onClick={() => onGenerate(artistInfo)} loading={loading} disabled={!artistInfo}>
-                <SparklesIcon /> Create Brand Kit
-            </ActionButton>
-        </div>
-    );
-};
-
-const LyricWriterTool: FC<{ onGenerate: (p: { theme: string; mood: string }) => void, loading?: boolean }> = ({ onGenerate, loading }) => {
-    const [theme, setTheme] = useState('');
-    const [mood, setMood] = useState('');
-    return (
-        <div>
-            <FormInput label="Theme" value={theme} onChange={(e) => setTheme(e.target.value)} placeholder="e.g., Lost love, finding yourself, social justice" />
-            <FormInput label="Mood" value={mood} onChange={(e) => setMood(e.target.value)} placeholder="e.g., Melancholic, hopeful, angry" />
-            <ActionButton onClick={() => onGenerate({ theme, mood })} loading={loading} disabled={!theme || !mood}>
-                <PencilSquareIcon /> Generate Lyric Ideas
-            </ActionButton>
-        </div>
-    );
-};
-
-const SocialPostTool: FC<{ onGenerate: (p: { releaseInfo: string; platform: SocialPost['platform'] }) => void, loading?: boolean }> = ({ onGenerate, loading }) => {
-    const [releaseInfo, setReleaseInfo] = useState('');
-    const [platform, setPlatform] = useState<SocialPost['platform']>('Instagram');
-    return (
-        <div>
-            <FormTextArea label="What are you promoting?" value={releaseInfo} onChange={(e) => setReleaseInfo(e.target.value)} placeholder="e.g., New single 'Cosmic Drift' out on Friday!" />
-            <div className="my-2">
-                 <label className="block text-sm font-medium text-gray-300 mb-1">Platform</label>
-                 <select value={platform} onChange={e => setPlatform(e.target.value as any)} className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white">
-                    <option>Instagram</option>
-                    <option>Twitter</option>
-                    <option>TikTok</option>
-                </select>
-            </div>
-            <ActionButton onClick={() => onGenerate({ releaseInfo, platform })} loading={loading} disabled={!releaseInfo}>
-                <ShareIcon /> Generate Posts
-            </ActionButton>
-        </div>
-    );
-};
-
-
-const PressReleaseTool: FC<{ onGenerate: (releaseInfo: string) => void, loading?: boolean }> = ({ onGenerate, loading }) => {
-    const [releaseInfo, setReleaseInfo] = useState('');
-    return (
-        <div>
-            <FormTextArea label="Key release details" value={releaseInfo} onChange={e => setReleaseInfo(e.target.value)} placeholder="e.g., Artist Name, Release Title, Release Date, a few sentences about the song/album." />
-            <ActionButton onClick={() => onGenerate(releaseInfo)} loading={loading} disabled={!releaseInfo}>
-                <NewspaperIcon /> Write Press Release
-            </ActionButton>
-        </div>
-    );
-};
-
-const ReleasePlanTool: FC<{ onGenerate: (p: { artistName: string, releaseTitle: string, releaseDate: string }) => void, loading?: boolean }> = ({ onGenerate, loading }) => {
-    const [artistName, setArtistName] = useState('');
-    const [releaseTitle, setReleaseTitle] = useState('');
-    const [releaseDate, setReleaseDate] = useState(new Date().toISOString().split('T')[0]);
-    return (
-        <div>
-            <FormInput label="Artist Name" value={artistName} onChange={e => setArtistName(e.target.value)} placeholder="Your band name"/>
-            <FormInput label="Release Title" value={releaseTitle} onChange={e => setReleaseTitle(e.target.value)} placeholder="Name of single/EP/album"/>
-            <FormInput label="Release Date" type="date" value={releaseDate} onChange={e => setReleaseDate(e.target.value)} />
-            <ActionButton onClick={() => onGenerate({ artistName, releaseTitle, releaseDate })} loading={loading} disabled={!artistName || !releaseTitle || !releaseDate}>
-                <CalendarDaysIcon /> Build Release Plan
-            </ActionButton>
-        </div>
-    );
-};
-
-const SyncPitchTool: FC<{ onGenerate: (p: { songDesc: string, showDesc: string }) => void, loading?: boolean }> = ({ onGenerate, loading }) => {
-    const [songDesc, setSongDesc] = useState('');
-    const [showDesc, setShowDesc] = useState('');
-    return (
-        <div>
-            <FormTextArea label="Describe your song" value={songDesc} onChange={e => setSongDesc(e.target.value)} placeholder="e.g., 'Midnight Run' is an upbeat, 80s synth-pop track with a driving beat and hopeful lyrics about escaping a small town. (120 BPM, Key of C Major)" />
-            <FormTextArea label="Describe the show/scene" value={showDesc} onChange={e => setShowDesc(e.target.value)} placeholder="e.g., A coming-of-age drama like 'Sex Education'. Looking for a song for a final scene where the main characters drive off to college." />
-            <ActionButton onClick={() => onGenerate({ songDesc, showDesc })} loading={loading} disabled={!songDesc || !showDesc}>
-                <FilmIcon /> Create Sync Pitch
-            </ActionButton>
-        </div>
-    );
-};
-
-const ArtworkGeneratorTool: FC<{ onGenerate: (p: { prompt: string; aspectRatio: string; }) => void, loading?: boolean }> = ({ onGenerate, loading }) => {
-    const [prompt, setPrompt] = useState('');
-    const [aspectRatio, setAspectRatio] = useState('1:1');
-    return (
-        <div>
-            <FormTextArea label="Describe the artwork you want" value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="e.g., A robot holding a red skateboard, cinematic, dramatic lighting." />
-            <div className="my-2">
-                <label className="block text-sm font-medium text-gray-300 mb-1">Aspect Ratio</label>
-                <select value={aspectRatio} onChange={e => setAspectRatio(e.target.value)} className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white">
-                    <option value="1:1">1:1 (Square)</option>
-                    <option value="16:9">16:9 (Widescreen)</option>
-                    <option value="9:16">9:16 (Vertical)</option>
-                    <option value="4:3">4:3 (Standard)</option>
-                    <option value="3:4">3:4 (Portrait)</option>
-                </select>
-            </div>
-            <ActionButton onClick={() => onGenerate({ prompt, aspectRatio })} loading={loading} disabled={!prompt}>
-                <MountainIcon /> Generate Artwork
-            </ActionButton>
-        </div>
-    );
-};
-
-const DealMemoAnalyzerTool: FC<{ onAnalyze: (memoText: string) => void, loading?: boolean }> = ({ onAnalyze, loading }) => {
-    const [memoText, setMemoText] = useState('');
-    return (
-        <div>
-            <FormTextArea label="Paste the deal memo text here" value={memoText} onChange={e => setMemoText(e.target.value)} placeholder="Copy and paste the full text of the deal memo or contract..." rows={8}/>
-            <ActionButton onClick={() => onAnalyze(memoText)} loading={loading} disabled={!memoText}>
-                <DocumentDuplicateIcon /> Analyze Memo
-            </ActionButton>
-        </div>
-    );
-};
-
-const AudioTranscriberTool: FC<{ onTranscribe: (file: File) => void, loading?: boolean, error?: string | null }> = ({ onTranscribe, loading, error }) => {
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        if (acceptedFiles.length > 0) {
-            onTranscribe(acceptedFiles[0]);
-        }
-    }, [onTranscribe]);
-
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
-        onDrop,
-        accept: { 'audio/*': [] },
-        multiple: false
-    });
-
-    return (
-        <div {...getRootProps()} className={`p-6 border-2 border-dashed rounded-lg text-center cursor-pointer transition ${isDragActive ? 'border-green-500 bg-green-900/20' : 'border-gray-600 hover:border-gray-500'}`}>
-            <input {...getInputProps()} />
-            {loading ? (
-                 <div className="flex flex-col items-center justify-center gap-2"><LoadingSpinner /><span>Transcribing...</span></div>
-            ) : isDragActive ? (
-                <p>Drop the audio file here...</p>
-            ) : (
-                <div className="flex flex-col items-center justify-center gap-2">
-                    <MicrophoneIcon />
-                    <p>Drag 'n' drop an audio file here, or click to select</p>
-                    <p className="text-xs text-gray-500">For voice memos, song ideas, interviews...</p>
-                </div>
-            )}
-             <ErrorMessage error={error} />
-        </div>
-    );
-};
-
-
-const fileToDataUrl = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-    });
-};
-
-const ArtworkABTestTool: FC<{
-    brandInfo: { artistName: string; brandStatement?: string; audience?: Audience };
-    onAnalyze: (payload: { type: 'artworkAnalysis', data: any }) => void;
-    loading?: boolean;
-}> = ({ brandInfo, onAnalyze, loading }) => {
-    const [imageA, setImageA] = useState<{ file: File, url: string } | null>(null);
-    const [imageB, setImageB] = useState<{ file: File, url: string } | null>(null);
-
-    const onDropA = useCallback((acceptedFiles: File[]) => {
-        if (acceptedFiles.length > 0) {
-            const file = acceptedFiles[0];
-            fileToDataUrl(file).then(url => setImageA({ file, url }));
-        }
-    }, []);
-    const onDropB = useCallback((acceptedFiles: File[]) => {
-        if (acceptedFiles.length > 0) {
-            const file = acceptedFiles[0];
-            fileToDataUrl(file).then(url => setImageB({ file, url }));
-        }
-    }, []);
-
-    const { getRootProps: getRootPropsA, getInputProps: getInputPropsA, isDragActive: isDragActiveA } = useDropzone({ onDrop: onDropA, accept: { 'image/*': [] }, multiple: false });
-    const { getRootProps: getRootPropsB, getInputProps: getInputPropsB, isDragActive: isDragActiveB } = useDropzone({ onDrop: onDropB, accept: { 'image/*': [] }, multiple: false });
-
-    const handleAnalyze = () => {
-        if (imageA && imageB) {
-            onAnalyze({
-                type: 'artworkAnalysis',
-                data: { imageA: imageA.file, imageB: imageB.file, brandInfo }
-            });
-        }
-    };
-    
-    const DropzoneUI: FC<{ getRootProps: any, getInputProps: any, isDragActive: boolean, image: {url: string} | null, label: string }> = ({ getRootProps, getInputProps, isDragActive, image, label }) => (
-        <div {...getRootProps()} className={`p-4 border-2 border-dashed rounded-lg text-center cursor-pointer h-48 flex items-center justify-center transition ${isDragActive ? 'border-green-500 bg-green-900/20' : 'border-gray-600 hover:border-gray-500'}`}>
-            <input {...getInputProps()} />
-            {image ? (
-                <img src={image.url} alt={label} className="max-h-full max-w-full rounded" />
-            ) : isDragActive ? (
-                <p>Drop here...</p>
-            ) : (
-                <p>{label}</p>
-            )}
-        </div>
-    );
-
-    return (
-        <div>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-                <DropzoneUI getRootProps={getRootPropsA} getInputProps={getInputPropsA} isDragActive={isDragActiveA} image={imageA} label="Upload Image A" />
-                <DropzoneUI getRootProps={getRootPropsB} getInputProps={getInputPropsB} isDragActive={isDragActiveB} image={imageB} label="Upload Image B" />
-            </div>
-            <ActionButton onClick={handleAnalyze} loading={loading} disabled={!imageA || !imageB}>
-                <ChartBarIcon /> Analyze Artwork
-            </ActionButton>
-        </div>
-    );
-};
-
-const CreativeToolkit: FC<{ onGenerate: (payload: any) => void; state: AppState }> = ({ onGenerate, state }) => {
-    const { dashboardData, loading, errors } = state;
-    return (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <ToolCard icon={<IdentificationIcon />} title="Artist Bio" description="Generate short, medium, and long artist bios for different platforms." unlocked={true}>
-                <ArtistBioTool onGenerate={(artistInfo) => onGenerate({ type: 'artistBio', data: artistInfo })} loading={loading.artistBio} />
-            </ToolCard>
-            <ToolCard icon={<SparklesIcon />} title="Brand Kit" description="Create a full brand identity, including colors, fonts, and logo ideas." unlocked={true}>
-                <BrandKitTool onGenerate={(artistInfo) => onGenerate({ type: 'brandKit', data: artistInfo })} loading={loading.brandKit} />
-            </ToolCard>
-             <ToolCard icon={<PencilSquareIcon />} title="Lyric Writer" description="Get help with song titles, concepts, and structures when you have writer's block." unlocked={true}>
-                <LyricWriterTool onGenerate={(data) => onGenerate({ type: 'lyricIdeas', data })} loading={loading.lyricIdeas} />
-            </ToolCard>
-            <ToolCard icon={<MountainIcon />} title="AI Artwork" description="Generate album art, logos, or social media graphics from a text prompt." unlocked={!!dashboardData.brandKit} unlocksWith={['brandKit']}>
-                 <ArtworkGeneratorTool onGenerate={(data) => onGenerate({ type: 'aiGeneratedImage', data })} loading={loading.aiGeneratedImage} />
-            </ToolCard>
-             <ToolCard icon={<GiftIcon />} title="Merch Concepts" description="Brainstorm creative merchandise ideas that align with your brand." unlocked={!!dashboardData.brandKit} unlocksWith={['brandKit']}>
-                <ActionButton onClick={() => onGenerate({ type: 'merchConcepts' })} loading={loading.merchConcepts}>
-                    <GiftIcon /> Brainstorm Merch
-                </ActionButton>
-            </ToolCard>
-            <ToolCard icon={<ShareIcon />} title="Social Posts" description="Create engaging social media posts to promote your latest release." unlocked={true}>
-                <SocialPostTool onGenerate={(data) => onGenerate({ type: 'socialPosts', data })} loading={loading.socialPosts} />
-            </ToolCard>
-            <ToolCard icon={<FilmIcon />} title="Sync Pitch" description="Find music supervisors and write a pitch email to get your song placed in TV/film." unlocked={true}>
-                <SyncPitchTool onGenerate={({ songDesc, showDesc }) => onGenerate({ type: 'syncPitch', data: { songDescription: songDesc, showDescription: showDesc }})} loading={loading.syncPitch} />
-            </ToolCard>
-            <ToolCard icon={<NewspaperIcon />} title="Press Release" description="Automatically write a professional press release for your new music." unlocked={!!dashboardData.artistBio} unlocksWith={['artistBio']}>
-                <PressReleaseTool onGenerate={(releaseInfo) => onGenerate({ type: 'pressRelease', data: releaseInfo })} loading={loading.pressRelease} />
-            </ToolCard>
-            <ToolCard icon={<DocumentDuplicateIcon />} title="Deal Memo Analyzer" description="Paste in a contract or deal memo to get a summary and identify red flags." unlocked={true}>
-                <DealMemoAnalyzerTool onAnalyze={(memoText) => onGenerate({ type: 'dealMemoAnalysis', data: memoText })} loading={loading.dealMemoAnalysis} />
-            </ToolCard>
-             <ToolCard icon={<MicrophoneIcon />} title="Audio Transcriber" description="Transcribe voice memos, interviews, or song ideas from an audio file." unlocked={true}>
-                <AudioTranscriberTool
-                    onTranscribe={async (file) => {
-                        const base64 = await fileToBase64(file);
-                        onGenerate({ type: 'audioTranscription', data: { base64, mimeType: file.type, fileName: file.name } })
-                    }}
-                    loading={loading.audioTranscription}
-                    error={errors.audioTranscription}
-                />
-            </ToolCard>
-            <ToolCard
-                icon={<ChartBarIcon />}
-                title="Artwork A/B Test"
-                description="Get AI feedback on two artwork options to see which aligns better with your brand."
-                unlocked={!!state.dashboardData.brandKit && !!state.dashboardData.audience}
-                unlocksWith={['brandKit', 'audience']}
-            >
-                <ArtworkABTestTool
-                    brandInfo={{
-                        artistName: state.dashboardData.audience?.artistName || 'your band',
-                        brandStatement: state.dashboardData.brandKit?.brand_statement,
-                        audience: state.dashboardData.audience
-                    }}
-                    onAnalyze={onGenerate}
-                    loading={state.loading.artworkAnalysis}
-                />
-            </ToolCard>
-        </div>
-    );
-};
-
-
-const SummitScore: FC<{ onGenerate: () => void; data?: SummitScoreData; loading?: boolean }> = ({ onGenerate, data, loading }) => (
-    <div className="text-center p-6">
-        <div className="relative inline-flex items-center justify-center">
-            <svg className="w-40 h-40">
-                <circle className="text-gray-700" strokeWidth="10" stroke="currentColor" fill="transparent" r="70" cx="80" cy="80" />
-                <circle
-                    className="text-green-500"
-                    strokeWidth="10"
-                    strokeDasharray={2 * Math.PI * 70}
-                    strokeDashoffset={(2 * Math.PI * 70) * (1 - (data?.score || 0) / 100)}
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r="70"
-                    cx="80"
-                    cy="80"
-                    style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
-                />
-            </svg>
-            <span className="absolute text-4xl font-bold text-white">
-                {data?.score || <button onClick={onGenerate} className="text-sm bg-gray-600 p-2 rounded-full">Analyze</button>}
-            </span>
-        </div>
-        {data && (
-            <div className="mt-4">
-                <p className="text-gray-300">{data.explanation}</p>
-                <div className="mt-2 text-left">
-                    <h4 className="font-bold text-center">Areas for Improvement:</h4>
-                    <ul className="list-disc list-inside inline-block text-center">
-                        {data.areas_for_improvement.map(area => <li key={area}>{area}</li>)}
-                    </ul>
-                </div>
-            </div>
-        )}
-         {loading && <div className="mt-2 flex justify-center"><LoadingSpinner/></div>}
-    </div>
-);
-
-const ChatAssistant: FC<{systemInstruction: string}> = ({systemInstruction}) => {
-    const { state, dispatch, geminiService } = useAppContext();
-    const { chatHistory, loading, errors } = state;
-    const [input, setInput] = useState('');
-    const [hasUserInteracted, setHasUserInteracted] = useState(false);
-    const chatEndRef = useRef<null | HTMLDivElement>(null);
-
-    useEffect(() => {
-        geminiService.startChat(systemInstruction);
-    }, [geminiService, systemInstruction]);
-    
-    useEffect(() => {
-        if (hasUserInteracted) {
-            chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [chatHistory, hasUserInteracted]);
-
-    const handleSend = () => {
-        if (input.trim()) {
-            if (!hasUserInteracted) {
-                setHasUserInteracted(true);
-            }
-            geminiService.sendMessage(input);
-            setInput('');
-        }
-    };
-    
-    const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            handleSend();
-        }
-    };
-
-    return (
-        <div className="flex flex-col h-[500px] bg-gray-800/50 rounded-lg">
-            <div className="flex-grow p-4 overflow-y-auto space-y-4">
-                {chatHistory.map((msg, index) => (
-                    <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-xs lg:max-w-md p-3 rounded-lg ${msg.role === 'user' ? 'bg-green-700' : 'bg-gray-700'}`}>
-                           {msg.content ? <MarkdownRenderer content={msg.content} /> : <LoadingSpinner size={20} />}
-                        </div>
-                    </div>
-                ))}
-                <div ref={chatEndRef} />
-            </div>
-            <div className="p-4 border-t border-gray-700">
-                {errors.chat && <ErrorMessage error={errors.chat} />}
-                <div className="flex items-center gap-2">
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Ask a follow-up question..."
-                        disabled={loading.chat}
-                        className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-green-500"
-                    />
-                    <button onClick={handleSend} disabled={loading.chat || !input} className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 text-white p-2 rounded-lg">
-                        <PaperAirplaneIcon />
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const SmartAgreementManager: FC = () => {
-    const { state, dispatch, geminiService } = useAppContext();
-    const [step, setStep] = useState(0); // 0: idle, 1: title, 2: collabs, 3: contributions, 4: review/edit
-    
-    // Wizard state
-    const [songTitle, setSongTitle] = useState('');
-    const [collaboratorNames, setCollaboratorNames] = useState<string[]>(['']);
-    const [contributionText, setContributionText] = useState('');
-    const [agreementDraft, setAgreementDraft] = useState<Omit<RoyaltySplit, 'id' | 'isFinalized'> | null>(null);
-
-    const loading = state.loading.royaltySplitSuggestion;
-
-    const resetWizard = () => {
-        setStep(0);
-        setSongTitle('');
-        setCollaboratorNames(['']);
-        setContributionText('');
-        setAgreementDraft(null);
-    };
-
-    const handleCollaboratorNameChange = (index: number, name: string) => {
-        const newNames = [...collaboratorNames];
-        newNames[index] = name;
-        setCollaboratorNames(newNames);
-    };
-
-    const addCollaboratorName = () => setCollaboratorNames([...collaboratorNames, '']);
-    const removeCollaboratorName = (index: number) => setCollaboratorNames(collaboratorNames.filter((_, i) => i !== index));
-
-    const handleAnalyzeContributions = async () => {
-        const filteredNames = collaboratorNames.filter(name => name.trim() !== '');
-        if (!songTitle || filteredNames.length === 0 || !contributionText) {
-            dispatch({ type: 'ADD_NOTIFICATION', payload: { message: "Please fill in all fields to get a suggestion.", type: 'error' } });
-            return;
-        }
-        try {
-            const result = await geminiService.parseContributionsAndSuggestSplits(songTitle, filteredNames, contributionText);
-            setAgreementDraft(result);
-            setStep(4);
-            dispatch({ type: 'ADD_NOTIFICATION', payload: { message: "AI has parsed contributions and suggested splits.", type: 'success' } });
-        } catch (error) {
-            dispatch({ type: 'ADD_NOTIFICATION', payload: { message: "Could not get AI suggestion.", type: 'error' } });
-        }
-    };
-
-    const handleFinalize = () => {
-        if (agreementDraft) {
-            dispatch({ type: 'ADD_ROYALTY_SPLIT', payload: agreementDraft });
-            dispatch({ type: 'ADD_NOTIFICATION', payload: { message: `Agreement for "${agreementDraft.songTitle}" logged to the chain!`, type: 'success' } });
-            resetWizard();
-        }
-    };
-    
-    const handleDraftUpdate = (index: number, field: 'name' | 'contribution' | 'percentage', value: string | number) => {
-        if (!agreementDraft) return;
-        const newDraft = { ...agreementDraft };
-        const newCollaborators = [...newDraft.collaborators];
-        if (field === 'percentage') {
-            const percentage = Number(value);
-            newCollaborators[index].percentage = isNaN(percentage) ? 0 : Math.max(0, Math.min(100, percentage));
-        } else {
-            (newCollaborators[index] as any)[field] = String(value);
-        }
-        setAgreementDraft({ ...newDraft, collaborators: newCollaborators });
-    };
-
-    const totalPercentage = useMemo(() => {
-        return agreementDraft?.collaborators.reduce((acc, c) => acc + (c.percentage || 0), 0) || 0;
-    }, [agreementDraft]);
-
-    const renderStep = () => {
-        switch (step) {
-            case 1: // Song Title
-                return (
-                    <div>
-                        <h3 className="text-xl font-bold mb-4">Step 1: What's the song title?</h3>
-                        <FormInput label="Song Title" value={songTitle} onChange={e => setSongTitle(e.target.value)} placeholder="e.g., Midnight Mirage" required />
-                    </div>
-                );
-            case 2: // Collaborators
-                return (
-                     <div>
-                        <h3 className="text-xl font-bold mb-4">Step 2: Who collaborated on this?</h3>
-                        <div className="space-y-2">
-                        {collaboratorNames.map((name, index) => (
-                            <div key={index} className="flex items-center gap-2">
-                                <input type="text" value={name} onChange={e => handleCollaboratorNameChange(index, e.target.value)} placeholder={`Collaborator ${index + 1} Name`} className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-green-500" />
-                                <button onClick={() => removeCollaboratorName(index)} className="text-gray-500 hover:text-red-500 p-2"><XCircleIcon /></button>
-                            </div>
-                        ))}
-                        </div>
-                        <button onClick={addCollaboratorName} className="mt-2 text-sm text-green-400 flex items-center gap-2"><PlusCircleIcon /> Add another collaborator</button>
-                    </div>
-                );
-            case 3: // Contributions
-                return (
-                    <div>
-                        <h3 className="text-xl font-bold mb-4">Step 3: Describe what everyone did</h3>
-                        <FormTextArea 
-                            label="Contributions" 
-                            value={contributionText} 
-                            onChange={(e) => setContributionText(e.target.value)}
-                            placeholder="Describe contributions in plain English. e.g., 'Sarah wrote the chorus lyrics and main guitar riff. Marcus produced the track and programmed the drums. Ben played bass.'"
-                            rows={6}
-                         />
-                        <ActionButton onClick={handleAnalyzeContributions} loading={loading} disabled={!contributionText}>
-                            <SparklesIcon /> Analyze & Suggest Splits
-                        </ActionButton>
-                    </div>
-                );
-            case 4: // Review & Finalize
-                if (!agreementDraft) return <p>Something went wrong, please restart.</p>;
-                return (
-                    <div>
-                        <h3 className="text-xl font-bold mb-4">Step 4: Review and Finalize Agreement</h3>
-                        <h4 className="text-lg font-semibold text-green-400">{agreementDraft.songTitle}</h4>
-                        <div className="space-y-4 my-4">
-                        {agreementDraft.collaborators.map((c, index) => (
-                             <div key={index} className="flex flex-col md:flex-row items-start gap-3 bg-gray-900/50 p-3 rounded-lg">
-                                <div className="flex-grow w-full md:w-1/3"><FormInput label="Name" value={c.name} onChange={(e) => handleDraftUpdate(index, 'name', e.target.value)} /></div>
-                                <div className="flex-grow w-full md:w-2/3"><FormTextArea label="Contribution" value={c.contribution} onChange={(e) => handleDraftUpdate(index, 'contribution', e.target.value)} rows={2}/></div>
-                                <div className="w-24 shrink-0"><FormInput label="Split %" type="number" value={String(c.percentage)} onChange={(e) => handleDraftUpdate(index, 'percentage', e.target.value)} /></div>
-                            </div>
-                        ))}
-                        </div>
-                         <div className={`mt-2 p-3 rounded-lg flex justify-between items-center transition-colors ${totalPercentage === 100 ? 'bg-green-900/30 border border-green-700' : 'bg-red-900/30 border border-red-700'}`}>
-                            <span className="font-bold text-lg">Total: {totalPercentage}%</span>
-                            {totalPercentage !== 100 && <span className="text-sm text-yellow-300">Total must be 100% to finalize.</span>}
-                            {totalPercentage === 100 && <span className="text-sm text-green-300">Ready to finalize!</span>}
-                        </div>
-                    </div>
-                );
-            default:
-                return null;
-        }
-    }
-
-    return (
-        <div>
-            {state.dashboardData.royaltySplits && state.dashboardData.royaltySplits.length > 0 && (
-                <div className="mb-6">
-                    <h3 className="text-xl font-bold mb-2 text-gray-300">Finalized Agreements</h3>
-                     <div className="space-y-3">
-                        {state.dashboardData.royaltySplits.map(split => (
-                            <div key={split.id} className="p-4 bg-gray-900/50 rounded-lg border border-green-700">
-                                <p className="font-bold text-green-400">{split.songTitle}</p>
-                                <div className="text-xs text-gray-400 mt-1">
-                                    {split.collaborators.map(c => `${c.name} (${c.percentage}%)`).join(', ')}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {step === 0 ? (
-                <button onClick={() => setStep(1)} className="w-full flex items-center justify-center gap-2 text-green-400 border-2 border-dashed border-gray-600 hover:border-green-500 hover:bg-green-900/20 p-4 rounded-lg transition">
-                    <PlusCircleIcon /> Create New Smart Agreement
-                </button>
-            ) : (
-                <div className="p-4 bg-gray-900/30 rounded-lg border border-gray-700">
-                    {renderStep()}
-                    <ErrorMessage error={state.errors.royaltySplitSuggestion} />
-                    <div className="mt-6 flex gap-4 justify-between">
-                        <div>
-                            {step > 1 && <button onClick={() => step === 4 ? setStep(3) : setStep(step - 1)} className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg">Back</button>}
-                        </div>
-                        <div className="flex gap-4">
-                             {step < 3 && <button onClick={() => setStep(step + 1)} disabled={step === 1 && !songTitle || step === 2 && collaboratorNames.every(n => n === '')} className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 font-bold py-2 px-4 rounded-lg">Next</button>}
-                             {step === 4 && <ActionButton onClick={handleFinalize} disabled={totalPercentage !== 100}><LockClosedIcon /> Finalize & Log</ActionButton>}
-                             <button onClick={resetWizard} className="font-bold py-2 px-4">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
 //================================================================
 // MAIN APP COMPONENT
 //================================================================
@@ -2540,6 +1575,14 @@ const App = () => {
   const { state, dispatch, geminiService } = useAppContext();
   const { dashboardData, loading, errors, activeGuide } = state;
   const proposalRef = useRef(null);
+
+  const requirementStatus = useCallback(
+    (...keys: (keyof DashboardData)[]) => {
+      const missing = keys.filter((key) => !dashboardData[key]);
+      return { isUnlocked: missing.length === 0, missingDeps: missing };
+    },
+    [dashboardData]
+  );
 
   const handleGenerate = useCallback(async (payload: { type: keyof DashboardData | 'royaltySplitSuggestion', data?: any }) => {
       try {
@@ -2666,7 +1709,7 @@ const App = () => {
                  <div className="grid lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2">
                         <h3 className="text-xl font-bold mb-4">1. Define Your Audience</h3>
-                        <ToolCard icon={<UserGroupIcon />} title="Audience Analysis" description="Define your target audience based on your music's genre, themes, and influences." unlocked={true}>
+                        <ToolCard icon={<UserGroupIcon />} title="Audience Analysis" description="Define your target audience based on your music's genre, themes, and influences." isUnlocked={true}>
                            <AudienceAnalysisTool onGenerate={(artistInfo) => handleGenerate({type: 'audience', data: artistInfo})} loading={loading.audience} />
                         </ToolCard>
                         <ErrorMessage error={errors.audience} />
@@ -2689,7 +1732,9 @@ const App = () => {
               
               {/* Creative Toolkit Section */}
               <Section title="Creative Toolkit" icon={<LightBulbIcon />} id="creative-toolkit">
-                  <CreativeToolkit onGenerate={handleGenerate} state={state} />
+                  <Suspense fallback={<Card className="p-6 flex justify-center"><LoadingSpinner /></Card>}>
+                      <CreativeToolkitLazy onGenerate={handleGenerate} state={state} />
+                  </Suspense>
                   <ErrorMessage error={Object.values(errors).find(e => e)} />
                   {dashboardData.artistBio && <div className="mt-6"><ArtistBioDisplay data={dashboardData.artistBio} /></div>}
                   {dashboardData.brandKit && <div className="mt-6"><BrandKitDisplay data={dashboardData.brandKit} /></div>}
@@ -2712,15 +1757,15 @@ const App = () => {
               {/* Planning & Execution Section */}
               <Section title="Planning & Execution" icon={<ClipboardDocumentCheckIcon />} id="planning-execution">
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <ToolCard icon={<CalendarDaysIcon />} title="Release Plan" description="Generate a detailed, step-by-step release checklist for your next single, EP, or album." unlocked={true}>
+                  <ToolCard icon={<CalendarDaysIcon />} title="Release Plan" description="Generate a detailed, step-by-step release checklist for your next single, EP, or album." isUnlocked={true}>
                       <ReleasePlanTool onGenerate={(data) => handleGenerate({type: 'releasePlan', data})} loading={loading.releasePlan} />
                   </ToolCard>
-                  <ToolCard icon={<ChartBarIcon />} title="Market Analysis" description="Get a SWOT analysis, competitor breakdown, and platform recommendations." unlocked={!!dashboardData.audience} unlocksWith={['audience']}>
+                  <ToolCard icon={<ChartBarIcon />} title="Market Analysis" description="Get a SWOT analysis, competitor breakdown, and platform recommendations." {...requirementStatus('audience')}>
                      <ActionButton onClick={() => handleGenerate({type: 'marketAnalysis'})} loading={loading.marketAnalysis}>
                         <ChartBarIcon /> Analyze Market
                     </ActionButton>
                   </ToolCard>
-                  <ToolCard icon={<CurrencyDollarIcon />} title="Financial Plan" description="Outline revenue streams, budget allocations, and financial goals." unlocked={!!dashboardData.audience} unlocksWith={['audience']}>
+                  <ToolCard icon={<CurrencyDollarIcon />} title="Financial Plan" description="Outline revenue streams, budget allocations, and financial goals." {...requirementStatus('audience')}>
                      <ActionButton onClick={() => handleGenerate({type: 'financialPlan'})} loading={loading.financialPlan}>
                         <CurrencyDollarIcon /> Create Financial Plan
                      </ActionButton>
@@ -2735,10 +1780,10 @@ const App = () => {
               {/* Fan Engagement Section */}
               <Section title="Fan Engagement" icon={<UsersIcon />} id="fan-engagement">
                  <div className="grid md:grid-cols-2 gap-6">
-                      <ToolCard icon={<EnvelopeIcon />} title="Fan Mail Analyzer" description="Analyze fan messages to understand sentiment, find themes, and get content ideas." unlocked={true}>
+                      <ToolCard icon={<EnvelopeIcon />} title="Fan Mail Analyzer" description="Analyze fan messages to understand sentiment, find themes, and get content ideas." isUnlocked={true}>
                          <FanMailAnalyzerTool onAnalyze={(messages) => handleGenerate({type: 'fanMailAnalysis', data: [messages]})} loading={loading.fanMailAnalysis} />
                       </ToolCard>
-                      <ToolCard icon={<MapIcon />} title="Tour Planner" description="Plan your next tour with venue suggestions, a sample setlist, and merch ideas." unlocked={!!dashboardData.audience} unlocksWith={['audience']}>
+                      <ToolCard icon={<MapIcon />} title="Tour Planner" description="Plan your next tour with venue suggestions, a sample setlist, and merch ideas." {...requirementStatus('audience')}>
                         <TourPlannerTool onGenerate={(data) => handleGenerate({type: 'tourPlan', data})} loading={loading.tourPlan} />
                       </ToolCard>
                  </div>
