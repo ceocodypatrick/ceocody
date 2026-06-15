@@ -325,6 +325,9 @@ interface DashboardData {
 type LoadingStates = { [K in keyof DashboardData | 'chat' | 'guide' | 'royaltySplitSuggestion']?: boolean };
 type ErrorStates = { [K in keyof DashboardData | 'chat' | 'guide' | 'royaltySplitSuggestion']?: string | null };
 
+const WINDOWS_DOWNLOAD_URL = "https://pub-9f71634fb2964fa9ac7f6621a0165d74.r2.dev/quantumgram-app-v1.0.18-win.exe";
+const MAC_DOWNLOAD_URL = "https://pub-9f71634fb2964fa9ac7f6621a0165d74.r2.dev/quantumgram-app-v1.0.18-mac.dmg";
+
 //================================================================
 // ICONS
 //================================================================
@@ -1372,6 +1375,12 @@ const App = () => {
   const [activeView, setActiveView] = useState<keyof DashboardData>('marketAnalysis'); // Default to Market Analysis for this demo
   const [dashboardData, setDashboardData] = useState<DashboardData>({});
   const [loading, setLoading] = useState<LoadingStates>({});
+  const preferredDownload = useMemo(() => {
+    if (typeof navigator === "undefined") return { url: MAC_DOWNLOAD_URL, label: "Download macOS App" };
+    const platform = navigator.userAgent.toLowerCase();
+    if (platform.includes("mac")) return { url: MAC_DOWNLOAD_URL, label: "Download macOS App" };
+    return { url: WINDOWS_DOWNLOAD_URL, label: "Download Windows App" };
+  }, []);
   
   // Initialize AI
   const ai = useMemo(() => new GoogleGenAI({ apiKey: process.env.API_KEY }), []);
@@ -1665,8 +1674,40 @@ const App = () => {
           <NavItem view="financialPlan" icon={<CurrencyDollarIcon />} label="Financials" />
           {/* Add more nav items as needed */}
         </nav>
-        <div className="p-4 border-t border-[#3c3c3c] text-xs text-gray-500 text-center">
-            Powered by Gemini 2.5 Flash
+        <div className="p-4 border-t border-[#3c3c3c] text-center space-y-3">
+          <a
+            href={preferredDownload.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-500 transition-colors"
+          >
+            <ArrowDownTrayIcon />
+            <span>{preferredDownload.label}</span>
+          </a>
+          <div className="flex flex-col gap-2 text-xs text-gray-400">
+            <span>
+              Need a different platform?{" "}
+              <a
+                href={MAC_DOWNLOAD_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-green-400 hover:text-green-300 font-semibold"
+              >
+                macOS
+              </a>
+              {" "}
+              ·{" "}
+              <a
+                href={WINDOWS_DOWNLOAD_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-green-400 hover:text-green-300 font-semibold"
+              >
+                Windows
+              </a>
+            </span>
+            <span className="text-gray-500">Powered by Gemini 2.5 Flash</span>
+          </div>
         </div>
       </aside>
 
